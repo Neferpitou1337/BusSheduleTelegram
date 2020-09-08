@@ -22,9 +22,12 @@ def numberHandler(message):
     if message.text not in config.NUMBERS_OF_BUSES:
         bot.reply_to(message, "This bus doesn't exist or Creator doesn't know about its emergence")
     else:
+        # todo:избавиться от глобальности и заимплементить в дб
         global d,index
         d = parse_main(message, config.URL)
         index = config.NUMBERS_OF_BUSES.index(message.text)
+
+        #creation of direction buttons
         markup = types.InlineKeyboardMarkup()
         itembtn1 = types.InlineKeyboardButton(text=d[index].get('first'),callback_data='direct')
         itembtn2 = types.InlineKeyboardButton(text=d[index].get('last'),callback_data='reverse')
