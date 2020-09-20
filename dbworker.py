@@ -52,6 +52,7 @@ def getState(user_id):
     cursor.execute("USE BOT")
     cursor.execute("SELECT state FROM direction WHERE user_id=%s", user_id)
     print(cursor.fetchone())
+    print("GET_state")
     con.close()
 
 def setState(user_id, state):
@@ -71,6 +72,8 @@ def getAll(user_id):
     cursor.execute("SELECT * FROM direction WHERE user_id=%s", user_id)
     row = cursor.fetchone()
     con.close()
+    print(cursor.fetchone() )
+    print("GET_all")
     return row
 
 
@@ -81,6 +84,7 @@ def setAll(user_id, number, first, first_link, last, last_link, state):
     cursor.execute("""REPLACE INTO direction (user_id, number, first, first_link, last, last_link, state) VALUES((%s), (%s), (%s), (%s), (%s), (%s),(%s))
     """, (user_id, number, first, first_link, last, last_link, state,))
     con.commit()
+    print("sET ALL")
     con.close()
 
 

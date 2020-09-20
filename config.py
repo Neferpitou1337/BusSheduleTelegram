@@ -68,7 +68,7 @@ NUMBERS_OF_BUSES = \
          '47']
 
 class States(Enum):
- S_START = "0"  # Начало нового диалога
- S_ENTER_NUMBER = "1"
- S_CHOOSE_DIR = "2"
- S_CHOOSE_BUS_STOP = "3"
+  S_START = "0"  # Начало нового диалога
+  S_ENTER_NUMBER = "1"
+  S_CHOOSE_DIR = "2"
+  S_CHOOSE_BUS_STOP = "3"
