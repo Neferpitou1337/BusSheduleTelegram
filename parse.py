@@ -9,4 +9,4 @@
 # it will be done every day in 0:00
 
 
-#todo: изучить FOREIGN KEY
+#todo: изучить FOREIGN KEYssss
