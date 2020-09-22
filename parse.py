@@ -16,33 +16,49 @@ from bs4 import BeautifulSoup
 
 # todo: изучить FOREIGN KEY
 
-conn = psycopg2.connect(
-    host="localhost",
-    database="timetable",
-    user="postgres",
-    password="r10t1337")
-
-cur = conn.cursor(cursor_factory=DictCursor)
-
-cur.close()
-conn.close()
+# conn = psycopg2.connect(
+#     host="localhost",
+#     database="timetable",
+#     user="postgres",
+#     password="r10t1337")
+#
+# cur = conn.cursor(cursor_factory=DictCursor)
+#
+# cur.close()
+# conn.close()
 
 
 def loop():
+    clear()
     d = getDict()
     fillRoutes(d)
-    fillTT(d)
+    # fillTT(d)
 
 
 # эта функия заполняет таблицу routes
-def fillRoutes(d):
-    pass
+def fillRoutes(dict):
+    conn = psycopg2.connect(
+        host="localhost",
+        database="timetable",
+        user="postgres",
+        password="r10t1337")
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    for d in dict:
+        cur.execute("""insert into routes(routename) values(%s)""",(d.get("number"),))
+        conn.commit()
+
+    cur.close()
+    conn.close()
 
 
 # заполняет таблицу TT попутно заполняя таблицу stops
 def fillTT(d):
     pass
 
+# очищает все таблицы
+def clear():
+    pass
 
 # collective function to parse information of buses and their direction to list of dicts
 def getDict():
@@ -65,6 +81,8 @@ def getDict():
 
         })
         i += 1
+    print(buses)
+    print('\n\n')
     return buses
 
 
@@ -72,7 +90,7 @@ def get_html(url):
     r = requests.get(url, headers=config.HEADERS)
     return r
 
-
+loop()
 # # parse content from http://ap1.brest.by/shelude/
 # def get_content_main(html):
 #     soup = BeautifulSoup(html, 'html.parser')
