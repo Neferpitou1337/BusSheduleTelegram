@@ -56,9 +56,45 @@ def fillRoutes(dict):
 def fillTT(d):
     pass
 
-# очищает все таблицы
+# Delete all tables to make counter again from zeros and recreate them
 def clear():
-    pass
+    conn = psycopg2.connect(
+        host="localhost",
+        database="timetable",
+        user="postgres",
+        password="r10t1337")
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("DROP TABLE tt CASCADE")
+    cur.execute("DROP TABLE routes CASCADE")
+    cur.execute("DROP TABLE stops CASCADE")
+    conn.commit()
+
+    cur.execute("""
+    CREATE TABLE Routes(
+        RouteId serial primary key,
+        RouteName varchar(5)
+    )
+    """)
+    cur.execute("""
+        CREATE TABLE Stops(
+            StopId serial primary key,
+            StopName varchar(15)
+        )
+        """)
+
+    cur.execute("""
+            CREATE TABLE tt(
+                RouteId INTEGER REFERENCES Routes(RouteId),
+                StopId serial REFERENCES Stops(StopId),
+                Time varchar(255),
+                Direction varchar(30),
+                Weekend bool
+            )
+            """)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 # collective function to parse information of buses and their direction to list of dicts
 def getDict():
