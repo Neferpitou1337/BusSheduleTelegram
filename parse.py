@@ -30,7 +30,7 @@ from bs4 import BeautifulSoup
 
 def loop():
     clear()
-    d = getDict()
+    d = parseMain()
     fillRoutes(d)
     # fillTT(d)
 
@@ -53,8 +53,9 @@ def fillRoutes(dict):
 
 
 # заполняет таблицу TT попутно заполняя таблицу stops
-def fillTT(d):
+def fillTT(dict):
     pass
+
 
 # Delete all tables to make counter again from zeros and recreate them
 def clear():
@@ -71,17 +72,16 @@ def clear():
     conn.commit()
 
     cur.execute("""
-    CREATE TABLE Routes(
-        RouteId serial primary key,
-        RouteName varchar(5)
-    )
-    """)
+        CREATE TABLE Routes(
+            RouteId serial primary key,
+            RouteName varchar(5)
+        )""")
+
     cur.execute("""
         CREATE TABLE Stops(
             StopId serial primary key,
             StopName varchar(15)
-        )
-        """)
+        )""")
 
     cur.execute("""
             CREATE TABLE tt(
@@ -90,14 +90,13 @@ def clear():
                 Time varchar(255),
                 Direction varchar(30),
                 Weekend bool
-            )
-            """)
+            )""")
     conn.commit()
     cur.close()
     conn.close()
 
 # collective function to parse information of buses and their direction to list of dicts
-def getDict():
+def parseMain():
     html = get_html(config.URL)
     if html.status_code != 200:
         print("something is not good with parsed page")
