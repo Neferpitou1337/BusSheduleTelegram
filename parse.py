@@ -36,7 +36,7 @@ def loop():
 
 
 # эта функия заполняет таблицу routes
-def fillRoutes(dict):
+def fillRoutes(dictOfbuses):
     conn = psycopg2.connect(
         host="localhost",
         database="timetable",
@@ -44,7 +44,7 @@ def fillRoutes(dict):
         password="r10t1337")
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    for d in dict:
+    for d in dictOfbuses:
         cur.execute("""insert into routes(routename) values(%s)""",(d.get("number"),))
         conn.commit()
 
@@ -53,9 +53,10 @@ def fillRoutes(dict):
 
 
 # заполняет таблицу TT попутно заполняя таблицу stops
-def fillTT(dict):
-    for d in dict:
+def fillTT(dictOfbuses):
+    for d in dictOfbuses:
         p = parseSecondary(d.get("first_link"))
+        print(p)
 
 
 
@@ -164,7 +165,7 @@ def get_html(url):
     r = requests.get(url, headers=config.HEADERS)
     return r
 
-#loop()
+# loop()
 # # parse content from http://ap1.brest.by/shelude/
 # def get_content_main(html):
 #     soup = BeautifulSoup(html, 'html.parser')
