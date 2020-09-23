@@ -54,7 +54,9 @@ def fillRoutes(dict):
 
 # заполняет таблицу TT попутно заполняя таблицу stops
 def fillTT(dict):
-    pass
+    for d in dict:
+        p = parseSecondary(d.get("first_link"))
+
 
 
 # Delete all tables to make counter again from zeros and recreate them
@@ -120,12 +122,49 @@ def parseMain():
     print('\n\n')
     return buses
 
+# parse content of stops and times of bus by url
+def parseSecondary(url):
+    html = get_html(url)
+    if html.status_code != 200:
+        print("something is not good with parsed page")
+
+    # parse content from http://ap1.brest.by/shelude/avtobus-number/direction
+    soup = BeautifulSoup(html.text, 'html.parser')
+    items = soup.find_all('div', class_="cat_item_page")
+    stops = []
+
+
+    #marker shows us goes this route in weekends or no
+    marker = True
+    if items[0].find_next("div", class_= '').get_text(strip = True).find("выходные") == -1:
+        marker = False
+
+    for item in items:
+        wd = item.find_next("div", class_= '').find_next("p").get_text(strip=True)[14:]
+        we = item.find_next("div", class_= '').find_next("p").find_next("p").get_text(strip=True)[15:]
+
+        # check is this only weekday route
+        if (marker):
+            stops.append({
+                'stop': item.find("a", class_= 'list_ost').get_text(strip=True),
+                'weekday time': wd,
+                'weekend time': we
+            })
+        else:
+            stops.append({
+                'stop': item.find("a", class_='list_ost').get_text(strip=True),
+                'weekday time': wd,
+                'weekend time': '--------'
+            })
+    return stops
+
+
 
 def get_html(url):
     r = requests.get(url, headers=config.HEADERS)
     return r
 
-loop()
+#loop()
 # # parse content from http://ap1.brest.by/shelude/
 # def get_content_main(html):
 #     soup = BeautifulSoup(html, 'html.parser')
