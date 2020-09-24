@@ -32,6 +32,7 @@ def loop():
     clear()
     d = parseMain()
     fillRoutes(d)
+    fillStops(d)
     # fillTT(d)
 
 
@@ -51,8 +52,53 @@ def fillRoutes(dictOfbuses):
     cur.close()
     conn.close()
 
-def fillStops(url):
-    pass
+# эта функия заполняет таблицу stops, я сделал ее отдельно, чтобы легче было поддерживать
+def fillStops(dictOfbuses):
+    conn = psycopg2.connect(
+        host="localhost",
+        database="timetable",
+        user="postgres",
+        password="r10t1337")
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    for d in dictOfbuses:
+        ps = parseSecondary(d.get("first_link"))
+
+        # для fillTT()
+        # direction = d.get('first')
+        # cur.execute("""
+        # SELECT routeID FROM Routes
+        # WHERE RouteName=%s
+        # """, (d.get('number'),))
+        # routeid = cur.fetchone()[0]
+
+        for i in ps:
+            cur.execute("""
+                    SELECT stopID FROM Stops
+                    WHERE StopName=%s
+                    """, (i.get('stop'),))
+            if cur.fetchone() == None:
+                cur.execute("""
+                        INSERT INTO Stops(StopName)
+                        VALUES(%s) RETURNING StopId
+                        """, (i.get('stop'),))
+                conn.commit()
+
+                #stopId = cur.fetchone()[0]
+
+            # для функции fillTT
+            # cur.execute("""
+            #         INSERT INTO tt(RouteId, stopId, time, direction, weekend)
+            #         VALUES(%s, %s, %s, %s, %s)
+            #         """, (routeid, stopId, i.get("weekday time"), d.get("first"), False))
+            # cur.execute("""
+            #         INSERT INTO tt(RouteId, stopId, time, direction, weekend)
+            #         VALUES(%s, %s, %s, %s, %s)
+            #         """, (routeid, stopId, i.get("weekend time"), d.get("first"), True))
+            #conn.commit()
+
+    cur.close()
+    conn.close()
 
 # заполняет таблицу TT попутно заполняя таблицу stops
 def fillTT(dictOfbuses):
