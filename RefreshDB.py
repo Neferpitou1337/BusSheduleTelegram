@@ -308,5 +308,3 @@ def fillDirection(dictOfbuses):
     conn.close()
     print("filling Directions is ended")
 
-
-loop()
