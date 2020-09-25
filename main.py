@@ -94,8 +94,8 @@ def parse_main(url, message):
     return dict
 
 
-# collective function to parse information of shedule on every bus stop to 'list of dicts'
-def parse_shedule(url):
+# [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day
+def RefreshDB_schedule(url):
     pass
 
 

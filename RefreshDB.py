@@ -13,10 +13,10 @@ def loop():
     clear()
     d = parseMain()
     # filling all tables
-    fillRoutes(d)
-    fillStops(d)
-    fillTT(d)
-
+    #fillRoutes(d)
+    #fillStops(d)
+    fillDirection(d)
+    #fillTT(d)
 
 
 # эта функия заполняет таблицу routes
@@ -29,11 +29,12 @@ def fillRoutes(dictOfbuses):
     cur = conn.cursor(cursor_factory=DictCursor)
 
     for d in dictOfbuses:
-        cur.execute("""insert into routes(routename) values(%s)""",(d.get("number"),))
+        cur.execute("""insert into routes(routename) values(%s)""", (d.get("number"),))
         conn.commit()
 
     cur.close()
     conn.close()
+
 
 # эта функия заполняет таблицу stops, я сделал ее отдельно, чтобы легче было поддерживать
 def fillStops(dictOfbuses):
@@ -74,17 +75,18 @@ def fillStops(dictOfbuses):
                         """, (i.get('stop'),))
                 conn.commit()
 
-
     cur.close()
     conn.close()
     time.sleep(10)
 
+
 # заполняет таблицу TT попутно заполняя таблицу stops
 def fillTT(dictOfbuses):
     for d in dictOfbuses:
-        fillDifDir(d.get("number"),d.get('first'),d.get('first_link'))
+        fillDifDir(d.get("number"), d.get('first'), d.get('first_link'))
         fillDifDir(d.get("number"), d.get('last'), d.get('last_link'))
     print("а на этом все")
+
 
 def fillDifDir(number, Direction, link):
     conn = psycopg2.connect(
@@ -127,7 +129,6 @@ def fillDifDir(number, Direction, link):
     conn.close()
 
 
-
 # function that cut string to first nums
 def cutStringToFirstNum(str):
     for i in range(0, len(str)):
@@ -135,6 +136,7 @@ def cutStringToFirstNum(str):
             ind = i
             break
     return str[ind:]
+
 
 # Delete all tables to make counter again from zeros and recreate them
 def clear():
@@ -148,31 +150,43 @@ def clear():
     cur.execute("DROP TABLE tt CASCADE")
     cur.execute("DROP TABLE routes CASCADE")
     cur.execute("DROP TABLE stops CASCADE")
+    cur.execute("DROP TABLE directions CASCADE")
     conn.commit()
 
+    # recreating table Routes
     cur.execute("""
         CREATE TABLE Routes(
             RouteId serial primary key,
             RouteName varchar(5)
         )""")
 
+    # recreating table Stops
     cur.execute("""
         CREATE TABLE Stops(
             StopId serial primary key,
             StopName varchar(30)
         )""")
 
+    # recreating table Directions
+    cur.execute("""
+        CREATE TABLE Directions(
+            dirId serial primary key,
+            dir varchar(40)
+        )""")
+
+    # recreating table tt
     cur.execute("""
             CREATE TABLE tt(
                 RouteId INTEGER REFERENCES Routes(RouteId),
                 StopId serial REFERENCES Stops(StopId),
                 Time varchar(600),
-                Direction varchar(40),
+                Direction INTEGER REFERENCES directions(dirId),
                 Weekend bool
             )""")
     conn.commit()
     cur.close()
     conn.close()
+
 
 # collective function to parse information of buses and their direction to list of dicts
 def parseMain():
@@ -199,6 +213,7 @@ def parseMain():
     print('\n\n')
     return buses
 
+
 # parse content of stops and times of bus by url
 def parseSecondary(url):
     html = get_html(url)
@@ -212,31 +227,30 @@ def parseSecondary(url):
     items = soup.find_all('div', class_="cat_item_page")
     stops = []
 
-
-    #marker shows us goes this route in weekends or no(1) or shedule is the same in weekdays and weekends(2)
+    # marker shows us goes this route in weekends or no(1) or shedule is the same in weekdays and weekends(2)
     marker = 0
-    if items[0].find_next("div", class_= '').get_text(strip = True).find("выходные") == -1:
+    if items[0].find_next("div", class_='').get_text(strip=True).find("выходные") == -1:
         marker = 1
-    if items[0].find_next("div", class_= '').get_text(strip = True).find("раб.") > 0:
+    if items[0].find_next("div", class_='').get_text(strip=True).find("раб.") > 0:
         marker = 2
-    if items[0].find_next("div", class_= '').get_text(strip = True).find("сб.") > 0:
+    if items[0].find_next("div", class_='').get_text(strip=True).find("сб.") > 0:
         marker = 3
     # Если такие автобусы как 6 появятся можно добавлять их в это условие а затем обрабатывать ниже
-    if exept.find("6")>0:
+    if exept.find("6") > 0:
         marker = 4
 
     for item in items:
-        wd = item.find_next("div", class_= '').find_next("p").get_text(strip=True)
-        we = item.find_next("div", class_= '').find_next("p").find_next("p").get_text(strip=True)
+        wd = item.find_next("div", class_='').find_next("p").get_text(strip=True)
+        we = item.find_next("div", class_='').find_next("p").find_next("p").get_text(strip=True)
 
         # check is this only weekday route
         if marker == 0:
             stops.append({
-                'stop': item.find("a", class_= 'list_ost').get_text(strip=True),
+                'stop': item.find("a", class_='list_ost').get_text(strip=True),
                 'weekday time': wd,
                 'weekend time': we
             })
-        elif marker == 1 :
+        elif marker == 1:
             stops.append({
                 'stop': item.find("a", class_='list_ost').get_text(strip=True),
                 'weekday time': wd,
@@ -258,7 +272,9 @@ def parseSecondary(url):
             })
         # обраюотка исключения автобуса №6
         else:
-            if item.find("a", class_= 'list_ost').get_text(strip=True) == "Тельмы" or item.find("a", class_= 'list_ost').get_text(strip=True) == "Московское шоссе":
+            if item.find("a", class_='list_ost').get_text(strip=True) == "Тельмы" or item.find("a",
+                                                                                               class_='list_ost').get_text(
+                strip=True) == "Московское шоссе":
                 stops.append({
                     'stop': item.find("a", class_='list_ost').get_text(strip=True),
                     'weekday time': wd,
@@ -266,12 +282,13 @@ def parseSecondary(url):
                 })
             else:
                 stops.append({
-                    'stop': item.find("a", class_= 'list_ost').get_text(strip=True),
+                    'stop': item.find("a", class_='list_ost').get_text(strip=True),
                     'weekday time': wd,
                     'weekend time': we
                 })
 
     return stops
+
 
 # get html from url using requests
 def get_html(url):
@@ -279,4 +296,21 @@ def get_html(url):
     return r
 
 
+def fillDirection(dictOfbuses):
+    conn = psycopg2.connect(
+        host="localhost",
+        database="timetable",
+        user="postgres",
+        password="r10t1337")
+    cur = conn.cursor(cursor_factory=DictCursor)
 
+    for d in dictOfbuses:
+        cur.execute("""insert into directions(dir) values(%s)""", (d.get("first"),))
+        cur.execute("""insert into directions(dir) values(%s)""", (d.get("last"),))
+        conn.commit()
+
+    cur.close()
+    conn.close()
+
+
+loop()
