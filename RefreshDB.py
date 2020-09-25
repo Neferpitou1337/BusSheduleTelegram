@@ -20,11 +20,7 @@ def loop():
 
 # эта функия заполняет таблицу routes
 def fillRoutes(dictOfbuses):
-    conn = psycopg2.connect(
-        host="localhost",
-        database="timetable",
-        user="postgres",
-        password="r10t1337")
+    conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     for d in dictOfbuses:
@@ -37,11 +33,7 @@ def fillRoutes(dictOfbuses):
 
 # эта функия заполняет таблицу stops, я сделал ее отдельно, чтобы легче было поддерживать
 def fillStops(dictOfbuses):
-    conn = psycopg2.connect(
-        host="localhost",
-        database="timetable",
-        user="postgres",
-        password="r10t1337")
+    conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     for d in dictOfbuses:
@@ -82,11 +74,7 @@ def fillStops(dictOfbuses):
 def fillTT(dictOfbuses):
     for d in dictOfbuses:
 
-        conn = psycopg2.connect(
-            host="localhost",
-            database="timetable",
-            user="postgres",
-            password="r10t1337")
+        conn = config.conDB()
         cur = conn.cursor(cursor_factory=DictCursor)
 
         # take dirId from Directions
@@ -111,11 +99,7 @@ def fillTT(dictOfbuses):
 
 
 def fillDifDir(number, Direction, link):
-    conn = psycopg2.connect(
-        host="localhost",
-        database="timetable",
-        user="postgres",
-        password="r10t1337")
+    conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     ps = parseSecondary(link)
@@ -158,11 +142,7 @@ def cutStringToFirstNum(str):
 
 # Delete all tables to make counter again from zeros and recreate them
 def clear():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="timetable",
-        user="postgres",
-        password="r10t1337")
+    conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     cur.execute("DROP TABLE tt CASCADE")
@@ -316,11 +296,7 @@ def get_html(url):
 
 
 def fillDirection(dictOfbuses):
-    conn = psycopg2.connect(
-        host="localhost",
-        database="timetable",
-        user="postgres",
-        password="r10t1337")
+    conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     for d in dictOfbuses:
