@@ -1,12 +1,5 @@
-# this part should recreate and fill shedule database
-# in the beginning it should recreate Routes table and fill it with RouteId and RouteName
-# then it should recreate Stops and TimeTable and
-
-# каждый раз когда добавляется автобус с остановкой программа берет остановку и если такой нет добавляет ее в Stops и
-# возвращает StopID, если же есть - возвращает ID существующей,
-# c RouteID проще, просто искать данный маршрут в Routes и добавлять соответствующий RouteID
-
-# it will be done every day in 0:00
+# this part should recreate and fill shedule databases
+# it will happen every day in 0:00
 
 import psycopg2
 from psycopg2.extras import DictCursor
@@ -14,18 +7,6 @@ import config
 import requests
 from bs4 import BeautifulSoup
 import time
-# todo: изучить FOREIGN KEY
-
-# conn = psycopg2.connect(
-#     host="localhost",
-#     database="timetable",
-#     user="postgres",
-#     password="r10t1337")
-#
-# cur = conn.cursor(cursor_factory=DictCursor)
-#
-# cur.close()
-# conn.close()
 
 
 def loop():
