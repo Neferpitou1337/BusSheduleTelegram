@@ -273,13 +273,10 @@ def parseSecondary(url):
 
     return stops
 
-
-
+# get html from url using requests
 def get_html(url):
     r = requests.get(url, headers=config.HEADERS)
     return r
-
-loop()
 
 
 
