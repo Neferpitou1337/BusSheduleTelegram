@@ -13,7 +13,7 @@ from psycopg2.extras import DictCursor
 import config
 import requests
 from bs4 import BeautifulSoup
-
+import time
 # todo: изучить FOREIGN KEY
 
 # conn = psycopg2.connect(
@@ -64,45 +64,89 @@ def fillStops(dictOfbuses):
     for d in dictOfbuses:
         ps = parseSecondary(d.get("first_link"))
 
-        # для fillTT()
-        # direction = d.get('first')
-        # cur.execute("""
-        # SELECT routeID FROM Routes
-        # WHERE RouteName=%s
-        # """, (d.get('number'),))
-        # routeid = cur.fetchone()[0]
-
         for i in ps:
             cur.execute("""
                     SELECT stopID FROM Stops
                     WHERE StopName=%s
                     """, (i.get('stop'),))
-            if cur.fetchone() == None:
+            s = cur.fetchone()
+            if s == None:
+                cur.execute("""
+                        INSERT INTO Stops(StopName)
+                        VALUES(%s) RETURNING StopId
+                        """, (i.get('stop'),))
+                conn.commit()
+        # заполняет недостающие остановки, которые есть в одном направлении а в другом нет
+        ps = parseSecondary(d.get("last_link"))
+        for i in ps:
+            cur.execute("""
+                    SELECT stopID FROM Stops
+                    WHERE StopName=%s
+                    """, (i.get('stop'),))
+            s = cur.fetchone()
+            if s == None:
                 cur.execute("""
                         INSERT INTO Stops(StopName)
                         VALUES(%s) RETURNING StopId
                         """, (i.get('stop'),))
                 conn.commit()
 
-                #stopId = cur.fetchone()[0]
-
-            # для функции fillTT
-            # cur.execute("""
-            #         INSERT INTO tt(RouteId, stopId, time, direction, weekend)
-            #         VALUES(%s, %s, %s, %s, %s)
-            #         """, (routeid, stopId, i.get("weekday time"), d.get("first"), False))
-            # cur.execute("""
-            #         INSERT INTO tt(RouteId, stopId, time, direction, weekend)
-            #         VALUES(%s, %s, %s, %s, %s)
-            #         """, (routeid, stopId, i.get("weekend time"), d.get("first"), True))
-            #conn.commit()
 
     cur.close()
     conn.close()
+    time.sleep(10)
 
 # заполняет таблицу TT попутно заполняя таблицу stops
 def fillTT(dictOfbuses):
+    # for d in dictOfbuses:
+    #     fillDifDir(d.get("number"),d.get('first'),d.get('first_link'))
+    #     fillDifDir(d.get("number"), d.get('last'), d.get('last_link'))
+    # print("а на этом все")
     pass
+
+def fillDifDir(number, Direction, link):
+    pass
+    # conn = psycopg2.connect(
+    #     host="localhost",
+    #     database="timetable",
+    #     user="postgres",
+    #     password="r10t1337")
+    # cur = conn.cursor(cursor_factory=DictCursor)
+    #
+    # ps = parseSecondary(link)
+    #
+    # cur.execute("""
+    #         SELECT routeID FROM Routes
+    #         WHERE RouteName=%s
+    #         """, (number,))
+    # routeid = cur.fetchone()[0]
+    #
+    # for i in ps:
+    #     cur.execute("""
+    #             SELECT stopID FROM Stops
+    #             WHERE StopName=%s
+    #             """, (i.get('stop'),))
+    #
+    #     stopId = 1
+    #     try:
+    #         stopId = cur.fetchone()[0]
+    #     except:
+    #         print(number)
+    #         time.sleep(2)
+    #     # для функции fillTT
+    #     cur.execute("""
+    #                     INSERT INTO tt(RouteId, stopId, time, direction, weekend)
+    #                     VALUES(%s, %s, %s, %s, %s)
+    #                     """, (routeid, stopId, i.get("weekday time"), Direction, False))
+    #     cur.execute("""
+    #                     INSERT INTO tt(RouteId, stopId, time, direction, weekend)
+    #                     VALUES(%s, %s, %s, %s, %s)
+    #                     """, (routeid, stopId, i.get("weekend time"), Direction, True))
+    #     conn.commit()
+    # cur.close()
+    # conn.close()
+
+
 
 # function that cut string to first nums
 def cutStringToFirstNum(str):
@@ -255,25 +299,7 @@ def get_html(url):
     r = requests.get(url, headers=config.HEADERS)
     return r
 
-# loop()
-# # parse content from http://ap1.brest.by/shelude/
-# def get_content_main(html):
-#     soup = BeautifulSoup(html, 'html.parser')
-#     items = soup.find_all('div', class_="collapse fade")
-#     buses = []
-#     i = 0
-#     for item in items:
-#         buses.append({
-#             'number': config.NUMBERS_OF_BUSES[i],
-#             'first': item.find_next("div", class_='first').get_text(strip=True),
-#             'first_link': 'http://ap1.brest.by' + item.find("a").get('href'),
-#             'last': item.find_next("div", class_='last').get_text(strip=True),
-#             'last_link': 'http://ap1.brest.by' + item.find_next("div", class_='last').find("a").get('href')
-#
-#         })
-#         i += 1
-#     return buses
+loop()
 
 
-# print(getDict())
 
