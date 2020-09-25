@@ -13,10 +13,10 @@ def loop():
     clear()
     d = parseMain()
     # filling all tables
-    #fillRoutes(d)
-    #fillStops(d)
+    fillRoutes(d)
+    fillStops(d)
     fillDirection(d)
-    #fillTT(d)
+    fillTT(d)
 
 
 # эта функия заполняет таблицу routes
@@ -34,7 +34,7 @@ def fillRoutes(dictOfbuses):
 
     cur.close()
     conn.close()
-
+    print("filling Routes is ended")
 
 # эта функия заполняет таблицу stops, я сделал ее отдельно, чтобы легче было поддерживать
 def fillStops(dictOfbuses):
@@ -77,14 +77,37 @@ def fillStops(dictOfbuses):
 
     cur.close()
     conn.close()
-    time.sleep(10)
-
+    print("filling Stops is ended")
 
 # заполняет таблицу TT попутно заполняя таблицу stops
 def fillTT(dictOfbuses):
     for d in dictOfbuses:
-        fillDifDir(d.get("number"), d.get('first'), d.get('first_link'))
-        fillDifDir(d.get("number"), d.get('last'), d.get('last_link'))
+
+        conn = psycopg2.connect(
+            host="localhost",
+            database="timetable",
+            user="postgres",
+            password="r10t1337")
+        cur = conn.cursor(cursor_factory=DictCursor)
+
+        # take dirId from Directions
+        cur.execute("""
+                SELECT dirID FROM Directions
+                WHERE dir=%s
+                """, (d.get('first'),))
+        first = cur.fetchone()[0]
+
+        cur.execute("""
+                        SELECT dirID FROM Directions
+                        WHERE dir=%s
+                        """, (d.get('last'),))
+        last = cur.fetchone()[0]
+
+        cur.close()
+        conn.close()
+
+        fillDifDir(d.get("number"), first, d.get('first_link'))
+        fillDifDir(d.get("number"), last, d.get('last_link'))
     print("а на этом все")
 
 
@@ -110,11 +133,7 @@ def fillDifDir(number, Direction, link):
                 WHERE StopName=%s
                 """, (i.get('stop'),))
 
-        stopId = 1
-        try:
-            stopId = cur.fetchone()[0]
-        except:
-            print(number)
+        stopId = cur.fetchone()[0]
         # для функции fillTT
         cur.execute("""
                         INSERT INTO tt(RouteId, stopId, time, direction, weekend)
@@ -177,8 +196,9 @@ def clear():
     # recreating table tt
     cur.execute("""
             CREATE TABLE tt(
+                id serial primary key,
                 RouteId INTEGER REFERENCES Routes(RouteId),
-                StopId serial REFERENCES Stops(StopId),
+                StopId INTEGER REFERENCES Stops(StopId),
                 Time varchar(600),
                 Direction INTEGER REFERENCES directions(dirId),
                 Weekend bool
@@ -311,6 +331,7 @@ def fillDirection(dictOfbuses):
 
     cur.close()
     conn.close()
+    print("filling Directions is ended")
 
 
 loop()
