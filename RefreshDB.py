@@ -6,7 +6,6 @@ from psycopg2.extras import DictCursor
 import config
 import requests
 from bs4 import BeautifulSoup
-import time
 
 
 def loop():
