@@ -1,3 +1,47 @@
+# использовать эту функию против всяких оказий из-за которых все не по порядку
+
+# Select routes.routename, directions.dir, stops.stopname, tt.time, tt.weekend
+# from tt
+# Inner join stops
+# on stops.stopid=tt.stopid
+# Inner join routes
+# on routes.routeid = tt.routeid
+# Inner join directions
+# on directions.dirid = tt.direction
+# where weekend=false and routename='11А' order by time
+
+# todo: Когда есть номер нахожу направление:
+# Select directions.dir
+# from tt
+# Inner join routes
+# on routes.routeid = tt.routeid
+# Inner join directions
+# on directions.dirid = tt.direction
+# where routename='11'
+# group by dir
+
+# Когда есть номе и направление нахожу остановки
+# Select stops.stopname
+# from tt
+# Inner join stops
+# on stops.stopid=tt.stopid
+# Inner join routes
+# on routes.routeid = tt.routeid
+# Inner join directions
+# on directions.dirid = tt.direction
+# where routename='1'and weekend=false and dir='Газоаппарат - Бернады' order by time
+
+# Когда есть номе и направление и остановка нахожу время и дальше работем с ним в проге
+# Select time
+# from tt
+# Inner join stops
+# on stops.stopid=tt.stopid
+# Inner join routes
+# on routes.routeid = tt.routeid
+# Inner join directions
+# on directions.dirid = tt.direction
+# where routename='1'and weekend=false and dir='Газоаппарат - Бернады' and stopname='Гоголя'
+
 import telebot
 from telebot import types
 from bs4 import BeautifulSoup
@@ -7,12 +51,11 @@ import dbworker
 
 # initialization of bot
 bot = telebot.TeleBot(config.TOKEN, parse_mode=None)
-#global dictionary and index
 
 # handler of /start and /help commands
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Hello, with my help u can see Buses' shedules of Brest")
+    bot.reply_to(message, "Welcome to Bus Schedule Bot\nInstructions can be seen here:\ngithub.com",disable_web_page_preview=False)
     dbworker.setAll(message.chat.id,"num","f","fl","l","ll",config.States.S_ENTER_NUMBER)
 
 
@@ -54,44 +97,8 @@ def callback_inline(call):
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=dict.get("last"),reply_markup=None)
         dbworker.setState(call.message.chat.id, config.States.S_CHOOSE_BUS_STOP)
 
-# getting html for future processing with help of requests library
-def get_html(url):
-    r = requests.get(url, headers=config.HEADERS)
-    return r
 
 
-# parse content from http://ap1.brest.by/shelude/
-def get_content_main(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    items = soup.find_all('div', class_="collapse fade")
-    buses = []
-    i = 0
-    for item in items:
-        buses.append({
-            'number': config.NUMBERS_OF_BUSES[i],
-            'first': item.find_next("div", class_='first').get_text(strip=True),
-            'first_link': 'http://ap1.brest.by' + item.find("a").get('href'),
-            'last': item.find_next("div", class_='last').get_text(strip=True),
-            'last_link': 'http://ap1.brest.by' + item.find_next("div", class_='last').find("a").get('href')
-
-        })
-        i += 1
-    print(buses,"dsadad")
-    return buses
-
-
-# parse content from shedule page of every single bus
-def get_content_shedule(html):
-    pass
-
-
-# collective function to parse information of buses and their direction to list of dicts
-def parse_main(url, message):
-    html = get_html(config.URL)
-    if html.status_code != 200:
-        bot.send_message(message.user.id,"Error, tell to Creator to to rewrite parser")
-    dict = get_content_main(html.text)
-    return dict
 
 
 # [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day
