@@ -157,11 +157,11 @@ def clear():
             StopName varchar(30) unique
         )""")
 
-    # recreating table Directions todo: add  unique
+    # recreating table Directions
     cur.execute("""
         CREATE TABLE Directions(
             dirId serial primary key,
-            dir varchar(40) 
+            dir varchar(40) unique
         )""")
 
     # recreating table tt
@@ -292,8 +292,8 @@ def fillDirection(dictOfbuses):
     cur = conn.cursor(cursor_factory=DictCursor)
 
     for d in dictOfbuses:
-        cur.execute("""insert into directions(dir) values(%s)""", (d.get("first"),))
-        cur.execute("""insert into directions(dir) values(%s)""", (d.get("last"),))
+        cur.execute("""insert into directions(dir) values(%s) ON CONFLICT(dir) DO NOTHING""", (d.get("first"),))
+        cur.execute("""insert into directions(dir) values(%s) ON CONFLICT(dir) DO NOTHING""", (d.get("last"),))
         conn.commit()
 
     cur.close()
