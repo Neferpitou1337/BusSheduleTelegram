@@ -41,30 +41,22 @@ def fillStops(dictOfbuses):
 
         for i in ps:
             cur.execute("""
-                    SELECT stopID FROM Stops
-                    WHERE StopName=%s
+                        INSERT INTO 
+                        Stops(StopName)
+                        VALUES(%s)
+                        ON CONFLICT(stopname) DO NOTHING
                     """, (i.get('stop'),))
-            s = cur.fetchone()
-            if s == None:
-                cur.execute("""
-                        INSERT INTO Stops(StopName)
-                        VALUES(%s) RETURNING StopId
-                        """, (i.get('stop'),))
-                conn.commit()
+            conn.commit()
         # заполняет недостающие остановки, которые есть в одном направлении а в другом нет
         ps = parseSecondary(d.get("last_link"))
         for i in ps:
             cur.execute("""
-                    SELECT stopID FROM Stops
-                    WHERE StopName=%s
+                        INSERT INTO 
+                        Stops(StopName)
+                        VALUES(%s)
+                        ON CONFLICT(stopname) DO NOTHING
                     """, (i.get('stop'),))
-            s = cur.fetchone()
-            if s == None:
-                cur.execute("""
-                        INSERT INTO Stops(StopName)
-                        VALUES(%s) RETURNING StopId
-                        """, (i.get('stop'),))
-                conn.commit()
+            conn.commit()
 
     cur.close()
     conn.close()
@@ -155,21 +147,21 @@ def clear():
     cur.execute("""
         CREATE TABLE Routes(
             RouteId serial primary key,
-            RouteName varchar(5)
+            RouteName varchar(5) unique
         )""")
 
     # recreating table Stops
     cur.execute("""
         CREATE TABLE Stops(
             StopId serial primary key,
-            StopName varchar(30)
+            StopName varchar(30) unique
         )""")
 
-    # recreating table Directions
+    # recreating table Directions todo: add  unique
     cur.execute("""
         CREATE TABLE Directions(
             dirId serial primary key,
-            dir varchar(40)
+            dir varchar(40) 
         )""")
 
     # recreating table tt
@@ -307,4 +299,3 @@ def fillDirection(dictOfbuses):
     cur.close()
     conn.close()
     print("filling Directions is ended")
-
