@@ -57,14 +57,22 @@ def getAll(user_id):
     conn.close()
     print("setState()")
     return row
-#
-#
-# def setAll(user_id, number, first, first_link, last, last_link, state):
-#     con = connec()
-#     cursor = con.cursor()
-#     cursor.execute("USE BOT")
-#     cursor.execute("""REPLACE INTO direction (user_id, number, first, first_link, last, last_link, state) VALUES((%s), (%s), (%s), (%s), (%s), (%s),(%s))
-#     """, (user_id, number, first, first_link, last, last_link, state,))
-#     con.commit()
-#     print("sET ALL")
-#     con.close()
+
+
+def setAll(user_id, route, dir, stop, status):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+            INSERT INTO 
+            userdecision(userid, route, direction, stop ,status)
+            VALUES(%s, %s, %s, %s, %s)
+            ON CONFLICT(userid) DO UPDATE
+            SET route=%s, direction=%s, stop=%s, status=%s
+        """, (user_id, route, dir, stop, status,
+                            route, dir, stop, status,))
+    conn.commit()
+
+    cur.close()
+    conn.close()
+    print("setAll()")
