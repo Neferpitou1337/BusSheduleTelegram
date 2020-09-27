@@ -41,17 +41,22 @@ def setState(user_id, state):
     conn.close()
     print("setState()")
 
-#
-# def getAll(user_id):
-#     con = connec()
-#     cursor = con.cursor()
-#     cursor.execute("USE BOT")
-#     cursor.execute("SELECT * FROM direction WHERE user_id=%s", user_id)
-#     row = cursor.fetchone()
-#     con.close()
-#     print(cursor.fetchone() )
-#     print("GET_all")
-#     return row
+
+def getAll(user_id):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+                SELECT * FROM 
+                userdecision
+                WHERE userid=%s
+            """, (user_id,))
+    row = cur.fetchone()
+
+    cur.close()
+    conn.close()
+    print("setState()")
+    return row
 #
 #
 # def setAll(user_id, number, first, first_link, last, last_link, state):

@@ -1,5 +1,5 @@
-# It was a mistake to ~~cum~~ come here
-###***This program of a Telegram bot that can give a user schedule of Buses***
+# It was a mistake to cum here
+### ***This program of a Telegram bot that can give a user schedule of Buses*** ###
 - User send in message some number of route:
 
 [some pic1]
