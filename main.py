@@ -1,4 +1,5 @@
 # использовать эту функию против всяких оказий из-за которых все не по порядку
+# todo: реализовать эти joins в userTableWorkder.py как getDirections() getStops() и getTime()
 
 # Select routes.routename, directions.dir, stops.stopname, tt.time, tt.weekend
 # from tt
@@ -10,7 +11,7 @@
 # on directions.dirid = tt.direction
 # where weekend=false and routename='11А' order by time
 
-# todo: Когда есть номер нахожу направление:
+# Когда есть номер нахожу направление:
 # Select directions.dir
 # from tt
 # Inner join routes
@@ -52,16 +53,19 @@ import userTableWorker
 # initialization of bot
 bot = telebot.TeleBot(config.TOKEN, parse_mode=None)
 
+
 # handler of /start and /reset commands
 @bot.message_handler(commands=['start', 'reset'])
 def send_welcome(message):
     # instead of gitub.com it should open my github with this project
-    bot.reply_to(message, "Welcome to Bus Schedule Bot\nInstructions can be seen here:\ngithub.com",disable_web_page_preview=False)
+    bot.reply_to(message, "Welcome to Bus Schedule Bot\nInstructions can be seen here:\ngithub.com",
+                 disable_web_page_preview=False)
     userTableWorker.setAll(message.chat.id, "num", "f", "fl", "l", "ll", config.States.S_ENTER_NUMBER)
 
 
 # todo:make some description
-@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER, content_types=['text'])
+@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER,
+                     content_types=['text'])
 def numberHandler(message):
     # if message.text not in config.NUMBERS_OF_BUSES:
     #     bot.reply_to(message, "This bus doesn't exist or Creator doesn't know about its emergence")
@@ -85,7 +89,8 @@ def numberHandler(message):
     pass
 
 
-@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR)
+@bot.callback_query_handler(
+    func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR)
 def callback_inline(call):
     # dict = userWorker.getAll(call.message.chat.id)
     # if call.message:
@@ -97,8 +102,6 @@ def callback_inline(call):
     #         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=dict.get("last"),reply_markup=None)
     #     userWorker.setState(call.message.chat.id, config.States.S_CHOOSE_BUS_STOP)
     pass
-
-
 
 
 # [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day URL=https://overcoder.net/q/37667/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B2-%D0%BD%D0%B0%D0%B8%D0%BB%D1%83%D1%87%D1%88%D0%B8%D0%B9-%D1%81%D0%BF%D0%BE%D1%81%D0%BE%D0%B1-%D0%BF%D0%BE%D0%B2%D1%82%D0%BE%D1%80%D0%BD%D0%BE-%D0%B2%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D1%8F%D1%82%D1%8C-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D1%8E-%D0%BA%D0%B0%D0%B6%D0%B4%D1%8B%D0%B5-x-%D1%81%D0%B5%D0%BA%D1%83%D0%BD%D0%B4-%D0%B2-python

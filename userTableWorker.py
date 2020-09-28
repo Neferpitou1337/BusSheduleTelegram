@@ -105,8 +105,51 @@ def getDirections(routenumber):
     conn.close()
     return tmpdirs
 
-def getStops():
-    pass
+def getStops(routenumber, direction):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+            Select stops.stopname
+            from tt
+            Inner join stops
+            on stops.stopid=tt.stopid
+            Inner join routes
+            on routes.routeid = tt.routeid
+            Inner join directions
+            on directions.dirid = tt.direction
+            where routename=%s and weekend=false and dir=%s
+            """, (routenumber, direction,))
+
+    tmpdirs = []
+    stops = cur.fetchall()
+
+    if stops[0][0] == direction[:direction.find('-')].strip(' ') or stops[-1][0] == direction[direction.find('-'):].strip(' '):
+        for s in stops:
+            tmpdirs.append(''.join(s))
+        return tmpdirs
+    else:
+        cur.execute("""
+                Select stops.stopname
+                from tt
+                Inner join stops
+                on stops.stopid=tt.stopid
+                Inner join routes
+                on routes.routeid = tt.routeid
+                Inner join directions
+                on directions.dirid = tt.direction
+                where routename=%s and weekend=false and dir=%s
+                order by time
+                """, (routenumber, direction,))
+
+        stops = cur.fetchall()
+        for s in stops:
+            tmpdirs.append(''.join(s))
+        return tmpdirs
+
+    cur.close()
+    conn.close()
+
 
 def getTime():
     pass
