@@ -2,6 +2,8 @@ import psycopg2
 import config
 from psycopg2.extras import DictCursor
 
+# Working with tables trough functions
+
 def getState(user_id):
     conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -76,3 +78,35 @@ def setAll(user_id, route, dir, stop, status):
     cur.close()
     conn.close()
     print("setAll()")
+
+
+def getDirections(routenumber):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+            SELECT directions.dir
+            FROM tt
+            INNER JOIN routes
+            ON routes.routeid = tt.routeid
+            INNER JOIN directions
+            ON directions.dirid = tt.direction
+            WHERE routename=%s
+            GROUP BY dir
+        """, (routenumber,))
+
+    tmpdirs = []
+
+    dirs = cur.fetchall()
+    for d in dirs:
+        tmpdirs.append(''.join(d))
+
+    cur.close()
+    conn.close()
+    return tmpdirs
+
+def getStops():
+    pass
+
+def getTime():
+    pass
