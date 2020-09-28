@@ -127,6 +127,8 @@ def getStops(routenumber, direction):
     if stops[0][0] == direction[:direction.find('-')].strip(' ') or stops[-1][0] == direction[direction.find('-'):].strip(' '):
         for s in stops:
             tmpdirs.append(''.join(s))
+        cur.close()
+        conn.close()
         return tmpdirs
     else:
         cur.execute("""
@@ -145,10 +147,10 @@ def getStops(routenumber, direction):
         stops = cur.fetchall()
         for s in stops:
             tmpdirs.append(''.join(s))
+        cur.close()
+        conn.close()
         return tmpdirs
 
-    cur.close()
-    conn.close()
 
 
 def getTime():
