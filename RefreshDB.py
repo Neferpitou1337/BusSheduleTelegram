@@ -184,25 +184,25 @@ def parseMain():
     html = get_html(config.URL)
     if html.status_code != 200:
         print("something is not good with parsed page")
+    else:
+        # parse content from http://ap1.brest.by/shelude/
+        soup = BeautifulSoup(html.text, 'html.parser')
+        items = soup.find_all('div', class_="collapse fade")
+        buses = []
+        i = 0
+        for item in items:
+            buses.append({
+                'number': config.NUMBERS_OF_BUSES[i],
+                'first': item.find_next("div", class_='first').get_text(strip=True),
+                'first_link': 'http://ap1.brest.by' + item.find("a").get('href'),
+                'last': item.find_next("div", class_='last').get_text(strip=True),
+                'last_link': 'http://ap1.brest.by' + item.find_next("div", class_='last').find("a").get('href')
 
-    # parse content from http://ap1.brest.by/shelude/
-    soup = BeautifulSoup(html.text, 'html.parser')
-    items = soup.find_all('div', class_="collapse fade")
-    buses = []
-    i = 0
-    for item in items:
-        buses.append({
-            'number': config.NUMBERS_OF_BUSES[i],
-            'first': item.find_next("div", class_='first').get_text(strip=True),
-            'first_link': 'http://ap1.brest.by' + item.find("a").get('href'),
-            'last': item.find_next("div", class_='last').get_text(strip=True),
-            'last_link': 'http://ap1.brest.by' + item.find_next("div", class_='last').find("a").get('href')
-
-        })
-        i += 1
-    print(buses)
-    print('\n\n')
-    return buses
+            })
+            i += 1
+        print(buses)
+        print('\n\n')
+        return buses
 
 
 # parse content of stops and times of bus by url
@@ -210,75 +210,75 @@ def parseSecondary(url):
     html = get_html(url)
     if html.status_code != 200:
         print("something is not good with parsed page")
+    else:
+        # parse content from http://ap1.brest.by/shelude/avtobus-number/direction
+        soup = BeautifulSoup(html.text, 'html.parser')
+        # bus 6 is the exeption and we should process this exeption properly in marker == 4
+        exept = soup.find_all('div', class_="content-category")[0].find("h1").get_text(strip=True)
+        items = soup.find_all('div', class_="cat_item_page")
+        stops = []
 
-    # parse content from http://ap1.brest.by/shelude/avtobus-number/direction
-    soup = BeautifulSoup(html.text, 'html.parser')
-    # bus 6 is the exeption and we should process this exeption properly in marker == 4
-    exept = soup.find_all('div', class_="content-category")[0].find("h1").get_text(strip=True)
-    items = soup.find_all('div', class_="cat_item_page")
-    stops = []
+        # marker shows us goes this route in weekends or no(1) or shedule is the same in weekdays and weekends(2)
+        marker = 0
+        if items[0].find_next("div", class_='').get_text(strip=True).find("выходные") == -1:
+            marker = 1
+        if items[0].find_next("div", class_='').get_text(strip=True).find("раб.") > 0:
+            marker = 2
+        if items[0].find_next("div", class_='').get_text(strip=True).find("сб.") > 0:
+            marker = 3
+        # Если такие автобусы как 6 появятся можно добавлять их в это условие а затем обрабатывать ниже
+        if exept.find("6") > 0:
+            marker = 4
 
-    # marker shows us goes this route in weekends or no(1) or shedule is the same in weekdays and weekends(2)
-    marker = 0
-    if items[0].find_next("div", class_='').get_text(strip=True).find("выходные") == -1:
-        marker = 1
-    if items[0].find_next("div", class_='').get_text(strip=True).find("раб.") > 0:
-        marker = 2
-    if items[0].find_next("div", class_='').get_text(strip=True).find("сб.") > 0:
-        marker = 3
-    # Если такие автобусы как 6 появятся можно добавлять их в это условие а затем обрабатывать ниже
-    if exept.find("6") > 0:
-        marker = 4
+        for item in items:
+            wd = item.find_next("div", class_='').find_next("p").get_text(strip=True)
+            we = item.find_next("div", class_='').find_next("p").find_next("p").get_text(strip=True)
 
-    for item in items:
-        wd = item.find_next("div", class_='').find_next("p").get_text(strip=True)
-        we = item.find_next("div", class_='').find_next("p").find_next("p").get_text(strip=True)
-
-        # check is this only weekday route
-        if marker == 0:
-            stops.append({
-                'stop': item.find("a", class_='list_ost').get_text(strip=True),
-                'weekday time': wd,
-                'weekend time': we
-            })
-        elif marker == 1:
-            stops.append({
-                'stop': item.find("a", class_='list_ost').get_text(strip=True),
-                'weekday time': wd,
-                'weekend time': '-'
-            })
-        elif marker == 2:
-            tmp = cutStringToFirstNum(wd)
-            stops.append({
-                'stop': item.find("a", class_='list_ost').get_text(strip=True),
-                'weekday time': 'в рабочие дни:' + tmp,
-                'weekend time': 'в выходные дни:' + tmp
-            })
-        elif marker == 3:
-            tmp = cutStringToFirstNum(wd)
-            stops.append({
-                'stop': item.find("a", class_='list_ost').get_text(strip=True),
-                'weekday time': 'в рабочие дни:' + tmp,
-                'weekend time': 'в субботу:' + tmp
-            })
-        # обраюотка исключения автобуса №6
-        else:
-            if item.find("a", class_='list_ost').get_text(strip=True) == "Тельмы" or item.find("a",
-                                                                                               class_='list_ost').get_text(
-                strip=True) == "Московское шоссе":
-                stops.append({
-                    'stop': item.find("a", class_='list_ost').get_text(strip=True),
-                    'weekday time': wd,
-                    'weekend time': '-'
-                })
-            else:
+            # check is this only weekday route
+            if marker == 0:
                 stops.append({
                     'stop': item.find("a", class_='list_ost').get_text(strip=True),
                     'weekday time': wd,
                     'weekend time': we
                 })
+            elif marker == 1:
+                stops.append({
+                    'stop': item.find("a", class_='list_ost').get_text(strip=True),
+                    'weekday time': wd,
+                    'weekend time': '-'
+                })
+            elif marker == 2:
+                tmp = cutStringToFirstNum(wd)
+                stops.append({
+                    'stop': item.find("a", class_='list_ost').get_text(strip=True),
+                    'weekday time': 'в рабочие дни:' + tmp,
+                    'weekend time': 'в выходные дни:' + tmp
+                })
+            elif marker == 3:
+                tmp = cutStringToFirstNum(wd)
+                stops.append({
+                    'stop': item.find("a", class_='list_ost').get_text(strip=True),
+                    'weekday time': 'в рабочие дни:' + tmp,
+                    'weekend time': 'в субботу:' + tmp
+                })
+            # обраюотка исключения автобуса №6
+            else:
+                if item.find("a", class_='list_ost').get_text(strip=True) == "Тельмы" or item.find("a",
+                                                                                                   class_='list_ost').get_text(
+                    strip=True) == "Московское шоссе":
+                    stops.append({
+                        'stop': item.find("a", class_='list_ost').get_text(strip=True),
+                        'weekday time': wd,
+                        'weekend time': '-'
+                    })
+                else:
+                    stops.append({
+                        'stop': item.find("a", class_='list_ost').get_text(strip=True),
+                        'weekday time': wd,
+                        'weekend time': we
+                    })
 
-    return stops
+        return stops
 
 
 # get html from url using requests
