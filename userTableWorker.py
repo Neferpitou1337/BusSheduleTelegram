@@ -166,7 +166,8 @@ def getTime(routenumber, weekend, direction, stop):
             ON directions.dirid = tt.direction
             WHERE routename = %s and dir = %s and stopname = %s and weekend = %s
     """,(routenumber, direction, stop, weekend,))
+    time = cur.fetchall()[0]
 
     cur.close()
     conn.close()
-    return cur.fetchall()[0]
+    return time
