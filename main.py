@@ -34,11 +34,10 @@ def numberHandler(message):
         itembtn2 = types.InlineKeyboardButton(text=dirs[1],callback_data=dirs[1])
         markup.add(itembtn1,itembtn2)
 
-        # updating table userdecision
-        userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
-
         bot.send_message(message.chat.id, "Выберите направление:", reply_markup = markup)
 
+        # updating table userdecision
+        userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
 
 # handle direction button and give n Stops buttons
 @bot.callback_query_handler(
@@ -59,6 +58,22 @@ def callback_inline_Directions_Handler(call):
         userTableWorker.setAll(call.message.chat.id, all[1], call.data, None, config.States.S_CHOOSE_BUS_STOP.value)
 
 
+
+@bot.callback_query_handler(
+    func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_BUS_STOP.value)
+def callback_inline_Stops_Handler(call):
+    if call.message:
+        all = userTableWorker.getAll(call.message.chat.id)
+        stop = call.data
+
+        weekdayTime = userTableWorker.getTime(all[1],False,all[2],stop)[0]
+        weekendTime = userTableWorker.getTime(all[1],True,all[2],stop)[0]
+
+        Time = weekdayTime+'\n'+weekendTime
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=Time,reply_markup=None)
+
+        # reset table userdecision to begining
+        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER.value)
 
 
 # [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day URL=https://overcoder.net/q/37667/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B2-%D0%BD%D0%B0%D0%B8%D0%BB%D1%83%D1%87%D1%88%D0%B8%D0%B9-%D1%81%D0%BF%D0%BE%D1%81%D0%BE%D0%B1-%D0%BF%D0%BE%D0%B2%D1%82%D0%BE%D1%80%D0%BD%D0%BE-%D0%B2%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D1%8F%D1%82%D1%8C-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D1%8E-%D0%BA%D0%B0%D0%B6%D0%B4%D1%8B%D0%B5-x-%D1%81%D0%B5%D0%BA%D1%83%D0%BD%D0%B4-%D0%B2-python
