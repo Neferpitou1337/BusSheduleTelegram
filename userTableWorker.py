@@ -167,8 +167,6 @@ def getTime(routenumber, weekend, direction, stop):
             WHERE routename = %s and dir = %s and stopname = %s and weekend = %s
     """,(routenumber, direction, stop, weekend,))
 
-    print(cur.fetchall()[0])
-
     cur.close()
     conn.close()
-
+    return cur.fetchall()[0]
