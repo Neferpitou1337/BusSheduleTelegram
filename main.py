@@ -19,7 +19,7 @@ def send_welcome(message):
     userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER.value)
 
 
-# todo:make some description
+# get directions from table and make 2 buttons inside bot
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER.value,
                      content_types=['text'])
 def numberHandler(message):
@@ -40,21 +40,23 @@ def numberHandler(message):
         bot.send_message(message.chat.id, "Выберите направление:", reply_markup = markup)
 
 
-
+# handle direction button and give n Stops buttons
 @bot.callback_query_handler(
     func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR.value)
 def callback_inline_Directions_Handler(call):
-    # if call.message:
-    #     all = userTableWorker.getAll(call.message.chat.id)
-    #     dir = call.data
-    #
-    #     stops = userTableWorker.getStops(all[1], dir)
-    #     print(stops)
-    #     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=dir,reply_markup=None)
-    #
-    #     # updating table userdecision
-    #     userTableWorker.setAll(call.message.chat.id, all[1], call.data, None, config.States.S_CHOOSE_BUS_STOP.value)
-    pass
+    if call.message:
+        all = userTableWorker.getAll(call.message.chat.id)
+        dir = call.data
+
+        stops = userTableWorker.getStops(all[1], dir)
+        markup = types.InlineKeyboardMarkup()
+        for st in stops:
+            markup.add(types.InlineKeyboardButton(text=st,callback_data=st))
+
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=dir,reply_markup=markup)
+
+        # updating table userdecision
+        userTableWorker.setAll(call.message.chat.id, all[1], call.data, None, config.States.S_CHOOSE_BUS_STOP.value)
 
 
 
