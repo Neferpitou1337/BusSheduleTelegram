@@ -50,7 +50,6 @@ def numberHandler(message):
 @bot.callback_query_handler(
     func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR.value)
 def callback_inline_Directions_Handler(call):
-
     if call.message:
         all = userTableWorker.getAll(call.message.chat.id)
 
