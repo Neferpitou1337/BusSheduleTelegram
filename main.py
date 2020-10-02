@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import config
 import requests
 import userTableWorker
+import hashlib
 
 # initialization of bot
 bot = telebot.TeleBot(config.TOKEN, parse_mode=None)
@@ -30,9 +31,15 @@ def numberHandler(message):
 
         #creation of direction buttons
         markup = types.InlineKeyboardMarkup()
-        itembtn1 = types.InlineKeyboardButton(text=dirs[0],callback_data=dirs[0])
-        itembtn2 = types.InlineKeyboardButton(text=dirs[1],callback_data=dirs[1])
-        markup.add(itembtn1,itembtn2)
+
+        #using hash to define dirs
+        hash_dirs0 = hashlib.md5(dirs[0].encode())
+        hash_dirs1 = hashlib.md5(dirs[1].encode())
+
+        itembtn1 = types.InlineKeyboardButton(text=dirs[0],callback_data=hash_dirs0.hexdigest())
+        itembtn2 = types.InlineKeyboardButton(text=dirs[1],callback_data=hash_dirs1.hexdigest())
+        markup.add(itembtn1)
+        markup.add(itembtn2)
 
         bot.send_message(message.chat.id, "Выберите направление:", reply_markup = markup)
 
@@ -43,9 +50,16 @@ def numberHandler(message):
 @bot.callback_query_handler(
     func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR.value)
 def callback_inline_Directions_Handler(call):
+
     if call.message:
         all = userTableWorker.getAll(call.message.chat.id)
-        dir = call.data
+
+        # get dir that user chooses
+        dirs = userTableWorker.getDirections(all[1])
+        if hashlib.md5(dirs[0].encode()).hexdigest() == call.data:
+            dir = dirs[0]
+        else:
+            dir = dirs[1]
 
         stops = userTableWorker.getStops(all[1], dir)
         markup = types.InlineKeyboardMarkup()
@@ -55,7 +69,7 @@ def callback_inline_Directions_Handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=dir,reply_markup=markup)
 
         # updating table userdecision
-        userTableWorker.setAll(call.message.chat.id, all[1], call.data, None, config.States.S_CHOOSE_BUS_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, all[1], dir, None, config.States.S_CHOOSE_BUS_STOP.value)
 
 
 
