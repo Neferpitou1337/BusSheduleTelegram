@@ -6,7 +6,6 @@ URL = 'http://ap1.brest.by/shelude'
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0',
            'accept': '*/*'}
 TOKEN = '1267389438:AAHZH3YY33nveMK2VM8qsCMLYORYp6mqOXg'
-db_file = 'database.vdb'
 NUMBERS_OF_BUSES = \
     ['1',
      '1А',
@@ -28,7 +27,7 @@ NUMBERS_OF_BUSES = \
      '14',
      '15А',
      '15Б',
-     '15B',
+     '15В',
      '16',
      '17',
      '18',
