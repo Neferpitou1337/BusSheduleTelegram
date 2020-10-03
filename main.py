@@ -5,6 +5,7 @@ import config
 import requests
 import userTableWorker
 import hashlib
+import timeOperator
 
 # initialization of bot
 bot = telebot.TeleBot(config.TOKEN, parse_mode=None)
@@ -14,7 +15,7 @@ bot = telebot.TeleBot(config.TOKEN, parse_mode=None)
 @bot.message_handler(commands=['start', 'reset'])
 def send_welcome(message):
     # instead of gitub.com it should open my github with this project
-    bot.reply_to(message, "Welcome to Bus Schedule Bot\nInstructions can be seen here:\ngithub.com",
+    bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\ngithub.com",
                  disable_web_page_preview=False)
 
     userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER.value)
@@ -25,7 +26,7 @@ def send_welcome(message):
                      content_types=['text'])
 def numberHandler(message):
     if message.text not in config.NUMBERS_OF_BUSES:
-        bot.reply_to(message, "Try to write with help of Russian Letters ot this bus doesn't exist and Creator doesn't know about its emergence")
+        bot.reply_to(message, "Попытайтесь написать русскими буквами или такого автобуса не существует или Создатель не знает о его появлении")
     else:
         dirs = userTableWorker.getDirections(message.text)
 
@@ -81,8 +82,9 @@ def callback_inline_Stops_Handler(call):
 
         weekdayTime = userTableWorker.getTime(all[1],False,all[2],stop)[0]
         weekendTime = userTableWorker.getTime(all[1],True,all[2],stop)[0]
+        closestTime = timeOperator.getTime(weekdayTime,weekendTime)
 
-        Time = weekdayTime+'\n'+weekendTime
+        Time = "Ближайшее время: " + closestTime +'\n' + weekdayTime+ '\n'+ weekendTime
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=Time,reply_markup=None)
 
         # reset table userdecision to begining
