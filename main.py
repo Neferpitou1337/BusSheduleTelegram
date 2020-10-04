@@ -6,15 +6,38 @@ from bs4 import BeautifulSoup
 
 import RefreshDB
 import config
-import requests
+
 import userTableWorker
 import hashlib
 import timeOperator
 import time
 import threading
 
+import flask
+from flask import Flask,request
+import requests
+
 # initialization of bot
+app = Flask(__name__)
 bot = telebot.TeleBot(config.TOKEN, parse_mode=None)
+
+
+
+@app.route("/", methods=["HEAD","GET"])
+def index():
+    return ''
+
+
+# steal from official github, setting the webhook to ngrock tunnel server
+@app.route('/', methods=['POST'])
+def webhook():
+    if flask.request.headers.get('content-type') == 'application/json':
+        json_string = flask.request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        flask.abort(403)
 
 
 # handler of /start and /reset commands
@@ -31,6 +54,7 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER.value,
                      content_types=['text'])
 def numberHandler(message):
+
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
         bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
@@ -139,5 +163,5 @@ def RefreshDB_schedule(delay, task):
 
 # RUN
 threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
-bot.polling(none_stop=True)
 
+app.run()
