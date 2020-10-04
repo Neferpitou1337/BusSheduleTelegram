@@ -299,3 +299,23 @@ def fillDirection(dictOfbuses):
     cur.close()
     conn.close()
     print("filling Directions is ended")
+
+# проверяет есть ли последний автобус в таблице, которая обновляется последней, если нет, то значит, что таблица обновляется
+# и лучше ее не трогать, а вывести, что, мол, юзверь, подожди немного
+def isRefreshing():
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""SELECT routes.routename
+                FROM tt
+                INNER JOIN routes
+                ON routes.routeid = tt.routeid
+                GROUP BY routename""")
+
+    l = []
+    for c in cur.fetchall():
+        l.append(c[0])
+
+    cur.close()
+    conn.close()
+    return False if "47" in l else True
