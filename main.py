@@ -164,4 +164,7 @@ def RefreshDB_schedule(delay, task):
 # RUN
 threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
 
+bot.remove_webhook()
+time.sleep(0.1)
+bot.set_webhook("https://55e55be60e42.ngrok.io/")
 app.run()
