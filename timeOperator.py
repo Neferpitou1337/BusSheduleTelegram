@@ -31,21 +31,21 @@ def getTime(weekdayTime, weekendTime):
 
     now = now_hour + ':' + now_min
     print(now)
-    times = timeTable.split(" - ")
+    times = sorted(timeTable.split(" - "))
 
     # организовываю цикличность проходя все возможные случаи
     if now > times[-1]:
         if datetime.today().weekday() == Weekdays.FRIDAY.value:
             if weekendTime == '-':
                 return "в пн " + times[0]
-            we = (RefreshDB.cutStringToFirstNum(weekendTime)).split(" - ")
+            we = sorted(RefreshDB.cutStringToFirstNum(weekendTime).split(" - "))
             return we[0]
 
         elif datetime.today().weekday() == Weekdays.SATURDAY.value and weekendTime.find("субб") > 0:
             return "в пн " + times[0]
 
         elif datetime.today().weekday() == Weekdays.SUNDAY.value:
-            wd = (RefreshDB.cutStringToFirstNum(weekdayTime)).split(" - ")
+            wd = sorted(RefreshDB.cutStringToFirstNum(weekdayTime).split(" - "))
             return wd[0]
         else:
             return times[0]
