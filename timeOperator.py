@@ -12,7 +12,8 @@ class Weekdays(Enum):
     SUNDAY = 6
 
 def getTime(weekdayTime, weekendTime):
-    timeTable = weekendTime if datetime.today().weekday() in (Weekdays.SATURDAY.value, Weekdays.SUNDAY.value) else weekdayTime
+    timeTable = weekendTime if datetime.today().weekday() in (
+    Weekdays.SATURDAY.value, Weekdays.SUNDAY.value) else weekdayTime
     if timeTable == '-':
         return "Сегодня такого маршрута нет"
     # проверка на автобусы с раб + суб
@@ -21,22 +22,26 @@ def getTime(weekdayTime, weekendTime):
 
     timeTable= RefreshDB.cutStringToFirstNum(timeTable)
 
-    now = str(datetime.today().time().hour) + ':' + str(datetime.today().time().minute)
+    # приведение текущего времени к типу 00:00
+    underTen = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    now_hour = "0" + str(datetime.today().time().hour) if datetime.today().time().hour in underTen else str(
+        datetime.today().time().hour)
+    now_min = "0" + str(datetime.today().time().minute) if datetime.today().time().minute in underTen else str(
+        datetime.today().time().minute)
 
+    now = now_hour + ':' + now_min
+    print(now)
     times = timeTable.split(" - ")
 
-
-
-
     # организовываю цикличность проходя все возможные случаи
-    if now>times[-1]:
+    if now > times[-1]:
         if datetime.today().weekday() == Weekdays.FRIDAY.value:
-            if weekendTime =='-':
+            if weekendTime == '-':
                 return "в пн " + times[0]
             we = (RefreshDB.cutStringToFirstNum(weekendTime)).split(" - ")
             return we[0]
 
-        elif datetime.today().weekday() == Weekdays.SATURDAY.value and weekendTime.find("субб")>0:
+        elif datetime.today().weekday() == Weekdays.SATURDAY.value and weekendTime.find("субб") > 0:
             return "в пн " + times[0]
 
         elif datetime.today().weekday() == Weekdays.SUNDAY.value:
@@ -46,5 +51,5 @@ def getTime(weekdayTime, weekendTime):
             return times[0]
 
     for t in times:
-        if t>=now:
+        if t >= now:
             return t
