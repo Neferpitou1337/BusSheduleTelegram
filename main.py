@@ -53,14 +53,24 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER_OR_STOP.value,
                      content_types=['text'])
 def numberandStopHandler(message):
-
+    numberOfSymbolstoFindSimilar = 4
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
         bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
         return 0
 
     if message.text not in config.NUMBERS_OF_BUSES:
-        bot.reply_to(message, "Попытайтесь написать русскими буквами или такого автобуса не существует или Создатель не знает о его появлении")
+        if len(message.text)<numberOfSymbolstoFindSimilar:
+            bot.reply_to(message,
+                         "Попытайтесь написать русскими буквами или такой остановки нет, или такого номера автобуса не "
+                         "существует, или Создатель не знает об их появлении.\n"
+                         "Если же вы пытались искать по остановке, то нужно как минимум 4 символа")
+        else:
+            similarStops = userTableWorker.getSimilarStops(message.text)
+            if similarStops == []:
+                bot.reply_to(message,"Такой остановки не сущеставует")
+            else:
+                stopsHandler(message, similarStops)
     else:
         numberHandler(message)
 
@@ -84,6 +94,9 @@ def numberHandler(message):
 
     # updating table userdecision
     userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
+
+def stopsHandler(message, similarStops):
+    pass
 
 # handle direction button and give n Stops buttons
 @bot.callback_query_handler(
