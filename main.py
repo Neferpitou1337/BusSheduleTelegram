@@ -52,7 +52,7 @@ def send_welcome(message):
 # get directions from table and make 2 buttons inside bot
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER_OR_DIR.value,
                      content_types=['text'])
-def numberandRouteHandler(message):
+def numberandStopHandler(message):
 
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
