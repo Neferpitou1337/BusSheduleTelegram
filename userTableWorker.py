@@ -79,7 +79,7 @@ def setAll(user_id, route, dir, stop, status):
     conn.close()
     print("setAll()")
 
-
+# изначально по номеру
 def getDirections(routenumber):
     conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -171,3 +171,20 @@ def getTime(routenumber, weekend, direction, stop):
     cur.close()
     conn.close()
     return time
+
+# изначально по напрвлению
+def getSimilarStops(str):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+        SELECT stopname FROM stops WHERE lower(stopname) LIKE lower(%s)
+    """,('%'+str+'%',))
+    similarStops = cur.fetchall()
+    similarStopslist = []
+    for stop in similarStops:
+        similarStopslist.append(stop[0])
+
+    cur.close()
+    conn.close()
+    return similarStopslist
