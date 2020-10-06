@@ -96,7 +96,15 @@ def numberHandler(message):
     userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
 
 def stopsHandler(message, similarStops):
-    pass
+    # creation of stops buttons
+    markup = types.InlineKeyboardMarkup()
+    for sS in similarStops:
+        markup.add(types.InlineKeyboardButton(text=sS, callback_data=sS))
+
+    bot.send_message(message.chat.id, "\nВыберите остановку:", reply_markup=markup)
+
+    # updating table userdecision
+    userTableWorker.setAll(message.chat.id, None, None, None, config.States.S2_BEGIN_FROM_STOP.value)
 
 # handle direction button and give n Stops buttons
 @bot.callback_query_handler(
