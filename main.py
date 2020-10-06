@@ -47,41 +47,43 @@ def send_welcome(message):
     bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\ngithub.com",
                  disable_web_page_preview=False)
 
-    userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER.value)
-
+    userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER_OR_DIR.value)
 
 # get directions from table and make 2 buttons inside bot
-@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER.value,
+@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER_OR_DIR.value,
                      content_types=['text'])
-def numberHandler(message):
+def numberandRouteHandler(message):
 
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
         bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
         return 0
 
-
     if message.text not in config.NUMBERS_OF_BUSES:
         bot.reply_to(message, "Попытайтесь написать русскими буквами или такого автобуса не существует или Создатель не знает о его появлении")
     else:
-        dirs = userTableWorker.getDirections(message.text)
+        numberHandler(message)
 
-        #creation of direction buttons
-        markup = types.InlineKeyboardMarkup()
 
-        #using hash to define dirs
-        hash_dirs0 = hashlib.md5(dirs[0].encode())
-        hash_dirs1 = hashlib.md5(dirs[1].encode())
+def numberHandler(message):
+    dirs = userTableWorker.getDirections(message.text)
 
-        itembtn1 = types.InlineKeyboardButton(text=dirs[0],callback_data=hash_dirs0.hexdigest())
-        itembtn2 = types.InlineKeyboardButton(text=dirs[1],callback_data=hash_dirs1.hexdigest())
-        markup.add(itembtn1)
-        markup.add(itembtn2)
+    # creation of direction buttons
+    markup = types.InlineKeyboardMarkup()
 
-        bot.send_message(message.chat.id, message.text + "\nВыберите направление:", reply_markup = markup)
+    # using hash to define dirs
+    hash_dirs0 = hashlib.md5(dirs[0].encode())
+    hash_dirs1 = hashlib.md5(dirs[1].encode())
 
-        # updating table userdecision
-        userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
+    itembtn1 = types.InlineKeyboardButton(text=dirs[0], callback_data=hash_dirs0.hexdigest())
+    itembtn2 = types.InlineKeyboardButton(text=dirs[1], callback_data=hash_dirs1.hexdigest())
+    markup.add(itembtn1)
+    markup.add(itembtn2)
+
+    bot.send_message(message.chat.id, message.text + "\nВыберите направление:", reply_markup=markup)
+
+    # updating table userdecision
+    userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
 
 # handle direction button and give n Stops buttons
 @bot.callback_query_handler(
@@ -143,7 +145,7 @@ def callback_inline_Stops_Handler(call):
         bot.send_message(call.message.chat.id,text=Time)
 
         # reset table userdecision to begining
-        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER_OR_DIR.value)
 
 
 # [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day
@@ -166,5 +168,5 @@ threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).st
 
 bot.remove_webhook()
 time.sleep(0.1)
-bot.set_webhook("https://55e55be60e42.ngrok.io/")
+bot.set_webhook(config.NGROK)
 app.run()
