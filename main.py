@@ -47,10 +47,10 @@ def send_welcome(message):
     bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\ngithub.com",
                  disable_web_page_preview=False)
 
-    userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER_OR_DIR.value)
+    userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER_OR_STOP.value)
 
 # get directions from table and make 2 buttons inside bot
-@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER_OR_DIR.value,
+@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER_OR_STOP.value,
                      content_types=['text'])
 def numberandStopHandler(message):
 
@@ -145,7 +145,7 @@ def callback_inline_Stops_Handler(call):
         bot.send_message(call.message.chat.id,text=Time)
 
         # reset table userdecision to begining
-        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER_OR_DIR.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER_OR_STOP.value)
 
 
 # [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day
