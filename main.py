@@ -74,7 +74,6 @@ def numberandStopHandler(message):
     else:
         numberHandler(message)
 
-
 def numberHandler(message):
     dirs = userTableWorker.getDirections(message.text)
 
@@ -106,7 +105,37 @@ def stopsHandler(message, similarStops):
     # updating table userdecision
     userTableWorker.setAll(message.chat.id, None, None, None, config.States.S2_BEGIN_FROM_STOP.value)
 
+@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S2_BEGIN_FROM_STOP.value)
+def callback_inline_s2_From_Stops_Handler(call):
+    # # проверка на обновление дб
+    # if RefreshDB.isRefreshing():
+    #     bot.send_message(call.message.chat.id,text="Подождите пару минут, идет обновление базы данных")
+    #     return 0
+    #
+    # if call.message:
+    #     stop = call.data
+    #     markup = types.InlineKeyboardMarkup()
+    #     # get all routes that coming trouth this stop
+    #     routes = userTableWorker.getRouteNumbers(stop)
+    #     numberInRow = 4
+    #     print(routes)
+    #     a  = [types.InlineKeyboardButton(text='45', callback_data='45'), types.InlineKeyboardButton(text='13', callback_data='13'), types.InlineKeyboardButton(text='10', callback_data='10')]
+    #     b  = [types.InlineKeyboardButton(text='47', callback_data='47'), types.InlineKeyboardButton(text='1', callback_data='1'), types.InlineKeyboardButton(text='1210', callback_data='1120')]
+    #     c = []
+    #     markup.row(*a)
+    #     markup.row(*c)
+    #     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Выберите номер автобуса',reply_markup=markup)
+    #
+    #     # updating table userdecision
+    #     userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S2_CHOOSE_ROUTE.value)
+
+
+
+
+
 # handle direction button and give n Stops buttons
+    pass
+
 @bot.callback_query_handler(
     func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR.value)
 def callback_inline_Directions_Handler(call):
@@ -169,6 +198,32 @@ def callback_inline_Stops_Handler(call):
         userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER_OR_STOP.value)
 
 
+# функция генерируящая лист из листов для использования в markup
+def generateButtonList(numList,buttInRow):
+    tmp = []
+    ll = []
+    begin = 0
+
+    for i in range(0,len(numList),buttInRow):
+        if i == 0:
+            continue
+        else:
+            for j in range(0, buttInRow):
+                tmp.append(types.InlineKeyboardButton(text=numList[begin+j], callback_data=numList[begin+j]))
+            ll.append(tmp)
+            tmp = []
+            begin = i
+
+    # counting remaining count
+    numofrem = len(numList)%buttInRow
+    # add remaining numbers list
+    for j in range(0, numofrem):
+        tmp.append(types.InlineKeyboardButton(text=numList[begin + j], callback_data=numList[begin + j]))
+    ll.append(tmp)
+
+    return ll
+
+
 # [later] collective function to initialize scheduler of loop() in RefreshDB that will update all tables once a day
 def RefreshDB_schedule(delay, task):
     next_time = time.time() + delay
@@ -185,7 +240,7 @@ def RefreshDB_schedule(delay, task):
 
 
 # RUN
-threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
+# threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
 
 bot.remove_webhook()
 time.sleep(0.1)
