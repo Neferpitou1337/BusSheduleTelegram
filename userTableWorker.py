@@ -172,7 +172,7 @@ def getTime(routenumber, weekend, direction, stop):
     conn.close()
     return time
 
-# изначально по напрвлению
+# изначально по остановке
 def getSimilarStops(str):
     conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
@@ -188,3 +188,28 @@ def getSimilarStops(str):
     cur.close()
     conn.close()
     return similarStopslist
+
+def getRouteNumbers(stop):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+            SELECT DISTINCT ON (routes.routename) routes.routename FROM tt
+            INNER JOIN routes
+            ON routes.routeid = tt.routeid
+            INNER JOIN stops
+            ON stops.stopid=tt.stopid
+            INNER JOIN directions
+            ON directions.dirid = tt.direction
+            WHERE stopname = %s
+            ORDER BY routes.routename
+    """,(stop,))
+
+    routeNumbersLL = cur.fetchall()
+
+    routeNumbers = []
+    for rn in routeNumbersLL:
+        routeNumbers.append(rn[0])
+    cur.close()
+    conn.close()
+    return routeNumbers
