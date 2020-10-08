@@ -45,7 +45,7 @@ def webhook():
 @bot.message_handler(commands=['start', 'reset'])
 def send_welcome(message):
     # instead of gitub.com it should open my github with this project
-    bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\ngithub.com",
+    bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\nhttps://github.com/Neferpitou1337/BusSheduleTelegram/blob/master/README.md",
                  disable_web_page_preview=False)
 
     userTableWorker.setState(message.chat.id, etc.States.S_ENTER_NUMBER_OR_STOP.value)
@@ -296,7 +296,7 @@ def RefreshDB_schedule(delay, task):
 
 
 # RUN
-threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
+# threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
 
 bot.remove_webhook()
 time.sleep(0.1)
