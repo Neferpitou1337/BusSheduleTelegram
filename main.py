@@ -129,7 +129,25 @@ def callback_inline_s2_Stop_Handler(call):
         userTableWorker.setAll(call.message.chat.id, None, None, stop, config.States.S2_ROUTE_HANDLER.value)
 
 
+@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S2_ROUTE_HANDLER.value)
+def callback_inline_routes_handler(call):
+    # проверка на обновление дб
+    if RefreshDB.isRefreshing():
+        bot.send_message(call.message.chat.id,text="Подождите пару минут, идет обновление базы данных")
+        return 0
+    if call.message:
+        stop = userTableWorker.getAll(call.message.chat.id)[3]
+        route = call.data
+        dirs = userTableWorker.getS2Directions(route,stop)
 
+        markup = types.InlineKeyboardMarkup()
+        for d in dirs:
+            markup.add(types.InlineKeyboardButton(text=d,callback_data=hashlib.md5(d.encode()).hexdigest()))
+
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Выберите направление:", reply_markup=markup)
+
+        userTableWorker.setAll(call.message.chat.id, route, None, stop, config.States.S2_DIR_HANDLER.value)
 
 
 # handle direction button and give n Stops buttons
