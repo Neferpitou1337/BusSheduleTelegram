@@ -151,27 +151,6 @@ def getStops(routenumber, direction):
         conn.close()
         return tmpdirs
 
-def getTime(routenumber, weekend, direction, stop):
-    conn = config.conDB()
-    cur = conn.cursor(cursor_factory=DictCursor)
-
-    cur.execute("""
-            SELECT time
-            FROM tt
-            INNER JOIN stops
-            ON stops.stopid = tt.stopid
-            INNER JOIN routes
-            ON routes.routeid = tt.routeid
-            INNER JOIN directions
-            ON directions.dirid = tt.direction
-            WHERE routename = %s and dir = %s and stopname = %s and weekend = %s
-    """,(routenumber, direction, stop, weekend,))
-    time = cur.fetchall()[0]
-
-    cur.close()
-    conn.close()
-    return time
-
 # изначально по остановке
 def getSimilarStops(str):
     conn = config.conDB()
@@ -237,3 +216,25 @@ def getS2Directions(routenumber, stop):
     cur.close()
     conn.close()
     return dirs
+
+# для обоих случаев
+def getTime(routenumber, weekend, direction, stop):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+            SELECT time
+            FROM tt
+            INNER JOIN stops
+            ON stops.stopid = tt.stopid
+            INNER JOIN routes
+            ON routes.routeid = tt.routeid
+            INNER JOIN directions
+            ON directions.dirid = tt.direction
+            WHERE routename = %s and dir = %s and stopname = %s and weekend = %s
+    """,(routenumber, direction, stop, weekend,))
+    time = cur.fetchall()[0]
+
+    cur.close()
+    conn.close()
+    return time
