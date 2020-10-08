@@ -118,7 +118,6 @@ def callback_inline_s2_Stop_Handler(call):
         # get all routes that coming trouth this stop
         routes = userTableWorker.getRouteNumbers(stop)
 
-        # todo: посмотри заметки если у автобуса только 1 остановка
         buttons = generateButtonList(routes,buttInRow=5)
 
         for b in buttons:
