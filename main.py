@@ -176,6 +176,8 @@ def callback_inline_s2_dir_handler(call):
         weekendTime = userTableWorker.getTime(route,True,dir,stop)[0]
         closestTime = timeOperator.getTime(weekdayTime,weekendTime)
 
+        if weekendTime == '-':
+            weekendTime = "в выходные дни: маршрутов нет"
 
         history = stop + '/' + route + '/' + dir
         clos_time = "Ближайшее время: " + closestTime
@@ -258,7 +260,7 @@ def generateButtonList(numList,buttInRow):
     ll = []
     begin = 0
 
-    for i in range(0,len(numList),buttInRow):
+    for i in range(0,len(numList)+1,buttInRow):
         if i == 0:
             continue
         else:
