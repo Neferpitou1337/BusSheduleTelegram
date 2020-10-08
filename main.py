@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 import RefreshDB
 import config
+import etc
 
 import userTableWorker
 import hashlib
@@ -47,10 +48,10 @@ def send_welcome(message):
     bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\ngithub.com",
                  disable_web_page_preview=False)
 
-    userTableWorker.setState(message.chat.id, config.States.S_ENTER_NUMBER_OR_STOP.value)
+    userTableWorker.setState(message.chat.id, etc.States.S_ENTER_NUMBER_OR_STOP.value)
 
 # get directions from table and make 2 buttons inside bot
-@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == config.States.S_ENTER_NUMBER_OR_STOP.value,
+@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == etc.States.S_ENTER_NUMBER_OR_STOP.value,
                      content_types=['text'])
 def numberandStopHandler(message):
     numberOfSymbolstoFindSimilar = 4
@@ -59,7 +60,7 @@ def numberandStopHandler(message):
         bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
         return 0
 
-    if message.text not in config.NUMBERS_OF_BUSES:
+    if message.text not in etc.NUMBERS_OF_BUSES:
         if len(message.text)<numberOfSymbolstoFindSimilar:
             bot.reply_to(message,
                          "Попытайтесь написать русскими буквами или такой остановки нет, или такого номера автобуса не "
@@ -92,7 +93,7 @@ def numberHandler(message):
     bot.send_message(message.chat.id, message.text + "\nВыберите направление:", reply_markup=markup)
 
     # updating table userdecision
-    userTableWorker.setAll(message.chat.id, message.text, None, None, config.States.S_CHOOSE_DIR.value)
+    userTableWorker.setAll(message.chat.id, message.text, None, None, etc.States.S_CHOOSE_DIR.value)
 
 def stopsHandler(message, similarStops):
     # creation of stops buttons
@@ -103,9 +104,9 @@ def stopsHandler(message, similarStops):
     bot.send_message(message.chat.id, "\nВыберите остановку:", reply_markup=markup)
 
     # updating table userdecision
-    userTableWorker.setAll(message.chat.id, None, None, None, config.States.S2_STOP_HANDLER.value)
+    userTableWorker.setAll(message.chat.id, None, None, None, etc.States.S2_STOP_HANDLER.value)
 
-@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S2_STOP_HANDLER.value)
+@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S2_STOP_HANDLER.value)
 def callback_inline_s2_Stop_Handler(call):
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
@@ -117,7 +118,6 @@ def callback_inline_s2_Stop_Handler(call):
         markup = types.InlineKeyboardMarkup()
         # get all routes that coming trouth this stop
         routes = userTableWorker.getRouteNumbers(stop)
-        print(routes)
 
         buttons = generateButtonList(routes,buttInRow=5)
 
@@ -128,10 +128,10 @@ def callback_inline_s2_Stop_Handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=history,reply_markup=markup)
 
         # updating table userdecision
-        userTableWorker.setAll(call.message.chat.id, None, None, stop, config.States.S2_ROUTE_HANDLER.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value)
 
 
-@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S2_ROUTE_HANDLER.value)
+@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S2_ROUTE_HANDLER.value)
 def callback_inline_s2_routes_handler(call):
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
@@ -151,10 +151,10 @@ def callback_inline_s2_routes_handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=history, reply_markup=markup)
 
-        userTableWorker.setAll(call.message.chat.id, route, None, stop, config.States.S2_DIR_HANDLER.value)
+        userTableWorker.setAll(call.message.chat.id, route, None, stop, etc.States.S2_DIR_HANDLER.value)
 
 
-@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S2_DIR_HANDLER.value)
+@bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S2_DIR_HANDLER.value)
 def callback_inline_s2_dir_handler(call):
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
@@ -172,7 +172,7 @@ def callback_inline_s2_dir_handler(call):
                 dir = d
                 break
 
-        weekdayTime = userTableWorker.getTime(route,False,dir, stop)[0]
+        weekdayTime = userTableWorker.getTime(route,False,dir,stop)[0]
         weekendTime = userTableWorker.getTime(route,True,dir,stop)[0]
         closestTime = timeOperator.getTime(weekdayTime,weekendTime)
 
@@ -188,12 +188,12 @@ def callback_inline_s2_dir_handler(call):
         bot.send_message(call.message.chat.id,text=Time)
 
         # reset table userdecision to begining
-        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER_OR_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value)
 
 
 # handle direction button and give n Stops buttons
 @bot.callback_query_handler(
-    func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_DIR.value)
+    func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S_CHOOSE_DIR.value)
 def callback_inline_Directions_Handler(call):
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
@@ -218,12 +218,12 @@ def callback_inline_Directions_Handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=all[1]+"/"+dir,reply_markup=markup)
 
         # updating table userdecision
-        userTableWorker.setAll(call.message.chat.id, all[1], dir, None, config.States.S_CHOOSE_BUS_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, all[1], dir, None, etc.States.S_CHOOSE_BUS_STOP.value)
 
 
 # giving a time to user and return to Entering number state
 @bot.callback_query_handler(
-    func=lambda call: userTableWorker.getState(call.message.chat.id) == config.States.S_CHOOSE_BUS_STOP.value)
+    func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S_CHOOSE_BUS_STOP.value)
 def callback_inline_Stops_Handler(call):
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
@@ -251,7 +251,7 @@ def callback_inline_Stops_Handler(call):
         bot.send_message(call.message.chat.id,text=Time)
 
         # reset table userdecision to begining
-        userTableWorker.setAll(call.message.chat.id, None, None, None, config.States.S_ENTER_NUMBER_OR_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value)
 
 
 # функция генерируящая лист из листов для использования в markup
