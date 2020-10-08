@@ -4,6 +4,7 @@
 import psycopg2
 from psycopg2.extras import DictCursor
 import config
+import etc
 import requests
 from bs4 import BeautifulSoup
 
@@ -181,7 +182,7 @@ def clear():
 
 # collective function to parse information of buses and their direction to list of dicts
 def parseMain():
-    html = get_html(config.URL)
+    html = get_html(etc.URL)
     if html.status_code != 200:
         print("something is not good with parsed page")
     else:
@@ -192,7 +193,7 @@ def parseMain():
         i = 0
         for item in items:
             buses.append({
-                'number': config.NUMBERS_OF_BUSES[i],
+                'number': etc.NUMBERS_OF_BUSES[i],
                 'first': item.find_next("div", class_='first').get_text(strip=True),
                 'first_link': 'http://ap1.brest.by' + item.find("a").get('href'),
                 'last': item.find_next("div", class_='last').get_text(strip=True),
