@@ -1,0 +1,6 @@
+/venv
+pip
+.idea
+__pycache__/
+# config with important configurations that normal glance shouldn't see
+config.py

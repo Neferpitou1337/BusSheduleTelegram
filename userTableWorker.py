@@ -22,7 +22,6 @@ def getState(user_id):
 
     cur.close()
     conn.close()
-    print("getState()")
     return status
 
 
@@ -41,7 +40,6 @@ def setState(user_id, state):
     conn.commit()
     cur.close()
     conn.close()
-    print("setState()")
 
 
 def getAll(user_id):
@@ -57,7 +55,6 @@ def getAll(user_id):
 
     cur.close()
     conn.close()
-    print("setState()")
     return row
 
 
@@ -77,7 +74,6 @@ def setAll(user_id, route, dir, stop, status):
 
     cur.close()
     conn.close()
-    print("setAll()")
 
 # изначально по номеру
 def getDirections(routenumber):
