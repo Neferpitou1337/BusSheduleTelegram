@@ -117,13 +117,15 @@ def callback_inline_s2_Stop_Handler(call):
         markup = types.InlineKeyboardMarkup()
         # get all routes that coming trouth this stop
         routes = userTableWorker.getRouteNumbers(stop)
+        print(routes)
 
         buttons = generateButtonList(routes,buttInRow=5)
 
         for b in buttons:
             markup.row(*b)
 
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Выберите номер автобуса',reply_markup=markup)
+        history = stop + '\nВыберите номер автобуса:'
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=history,reply_markup=markup)
 
         # updating table userdecision
         userTableWorker.setAll(call.message.chat.id, None, None, stop, config.States.S2_ROUTE_HANDLER.value)
@@ -145,8 +147,9 @@ def callback_inline_s2_routes_handler(call):
         for d in dirs:
             markup.add(types.InlineKeyboardButton(text=d,callback_data=hashlib.md5(d.encode()).hexdigest()))
 
+        history = stop + '/' + route + "\nВыберите направление:"
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text="Выберите направление:", reply_markup=markup)
+                                  text=history, reply_markup=markup)
 
         userTableWorker.setAll(call.message.chat.id, route, None, stop, config.States.S2_DIR_HANDLER.value)
 
@@ -173,10 +176,12 @@ def callback_inline_s2_dir_handler(call):
         weekendTime = userTableWorker.getTime(route,True,dir,stop)[0]
         closestTime = timeOperator.getTime(weekdayTime,weekendTime)
 
+
+        history = stop + '/' + route + '/' + dir
         clos_time = "Ближайшее время: " + closestTime
         Time = weekdayTime+'\n'+weekendTime
 
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Время: ",reply_markup=None)
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=history,reply_markup=None)
         bot.send_message(call.message.chat.id,text=clos_time)
         bot.send_message(call.message.chat.id,text=Time)
 
