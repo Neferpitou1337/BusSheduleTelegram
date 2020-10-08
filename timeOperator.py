@@ -30,7 +30,6 @@ def getTime(weekdayTime, weekendTime):
         datetime.today().time().minute)
 
     now = now_hour + ':' + now_min
-    print(now)
     times = sorted(timeTable.split(" - "))
 
     # организовываю цикличность проходя все возможные случаи
