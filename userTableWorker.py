@@ -213,3 +213,27 @@ def getRouteNumbers(stop):
     cur.close()
     conn.close()
     return routeNumbers
+
+def getS2Directions(routenumber, stop):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
+
+    cur.execute("""
+            SELECT DISTINCT ON (directions.dir)directions.dir FROM tt
+            INNER JOIN routes
+            ON routes.routeid = tt.routeid
+            INNER JOIN stops
+            ON stops.stopid=tt.stopid
+            INNER JOIN directions
+            ON directions.dirid = tt.direction
+            WHERE stopname = %s and routename=%s
+    """,(stop, routenumber,))
+
+    dirsList = cur.fetchall()
+    dirs = []
+    for d in dirsList:
+        dirs.append(d[0])
+
+    cur.close()
+    conn.close()
+    return dirs
