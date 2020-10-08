@@ -296,7 +296,7 @@ def RefreshDB_schedule(delay, task):
 
 
 # RUN
-# threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
+threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
 
 bot.remove_webhook()
 time.sleep(0.1)
