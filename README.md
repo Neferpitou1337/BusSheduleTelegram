@@ -23,3 +23,29 @@
 <p align="center">
 <img src="img/time.png">
 </p>
+
+###Or
+
+- User send some part of name of busstop
+
+<p align="center">
+<img src="img/enter_stop.png">
+</p>
+
+- User recieve n stops that are similar to pattern that user had written
+
+<p align="center">
+<img src="img/s2_n_stops.png">
+</p>
+
+- User recieve n numbers that run at these stops
+
+<p align="center">
+<img src="img/s2_route_choose.png">
+</p>
+
+- And finally get time
+
+<p align="center">
+<img src="img/s2_get_time.png">
+</p>
