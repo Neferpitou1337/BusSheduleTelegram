@@ -24,7 +24,7 @@
 <img src="img/time.png">
 </p>
 
-###Or
+### Or ###
 
 - User send some part of name of busstop
 
@@ -42,6 +42,12 @@
 
 <p align="center">
 <img src="img/s2_route_choose.png">
+</p>
+
+- User choose one or two directions
+
+<p align="center">
+<img src="img/s2_choose_dir.png">
 </p>
 
 - And finally get time
