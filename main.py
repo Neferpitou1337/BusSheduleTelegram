@@ -54,6 +54,7 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == etc.States.S_ENTER_NUMBER_OR_STOP.value,
                      content_types=['text'])
 def numberandStopHandler(message):
+    stopslesserthan4 = ["БТИ","ЦУМ","ЦМТ","БТК","АП","ТЭЦ","ЦГБ","ПСО","ФОК","ДСУ"]
     numberOfSymbolstoFindSimilar = 4
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
@@ -62,10 +63,13 @@ def numberandStopHandler(message):
 
     if message.text not in etc.NUMBERS_OF_BUSES:
         if len(message.text)<numberOfSymbolstoFindSimilar:
-            bot.reply_to(message,
-                         "Попытайтесь написать русскими буквами или такой остановки нет, или такого номера автобуса не "
-                         "существует, или Создатель не знает об их появлении.\n"
-                         "Если же вы пытались искать по остановке, то нужно как минимум 4 символа")
+            if message.text.upper() not in stopslesserthan4:
+                bot.reply_to(message,
+                             "Попытайтесь написать русскими буквами или такой остановки нет, или такого номера автобуса не "
+                             "существует, или Создатель не знает об их появлении.\n"
+                             "Если же вы пытались искать по остановке, то нужно как минимум 4 символа")
+            else:
+                stopsHandler(message, [message.text.upper()])
         else:
             similarStops = userTableWorker.getSimilarStops(message.text)
             if similarStops == []:
