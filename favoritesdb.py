@@ -34,8 +34,22 @@ def setFavorites(userid,*arg):
 
 
 def getFavorites(userid):
+    conn = config.conDB()
+    cur = conn.cursor(cursor_factory=DictCursor)
 
-    pass
+    cur.execute("""
+            SELECT routes.routename
+            FROM favorites
+            INNER JOIN routes
+            ON favorites.routeid = routes.routeid
+            WHERE userid=%s
+        """, (userid,))
 
-#favs = ["2","11","1"]
-#setFavorites(411279120,*favs)
+    llrts = cur.fetchall()
+    rts = []
+    for r in llrts:
+        rts.append(r[0])
+
+    cur.close()
+    conn.close()
+    return rts
