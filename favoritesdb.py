@@ -32,7 +32,6 @@ def setFavorites(userid,*arg):
     cur.close()
     conn.close()
 
-
 def getFavorites(userid):
     conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
