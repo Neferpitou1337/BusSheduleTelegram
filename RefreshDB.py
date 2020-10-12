@@ -228,7 +228,7 @@ def parseSecondary(url):
         if items[0].find_next("div", class_='').get_text(strip=True).find("сб.") > 0:
             marker = 3
         # Если такие автобусы как 6 появятся можно добавлять их в это условие а затем обрабатывать ниже
-        if exept.find("6") > 0:
+        if exept.find("№6") > 0:
             marker = 4
 
         for item in items:
