@@ -45,7 +45,7 @@ def webhook():
 @bot.message_handler(commands=['start', 'reset'])
 def send_welcome(message):
     # instead of gitub.com it should open my github with this project
-    bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\nhttps://github.com/Neferpitou1337/BusSheduleTelegram/blob/master/README.md",
+    bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\nhttps://clck.ru/RMJMW",
                  disable_web_page_preview=False)
 
     userTableWorker.setState(message.chat.id, etc.States.S_ENTER_NUMBER_OR_STOP.value)
@@ -61,7 +61,7 @@ def numberandStopHandler(message):
         bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
         return 0
 
-    if message.text not in etc.NUMBERS_OF_BUSES:
+    if message.text.upper() not in etc.NUMBERS_OF_BUSES:
         if len(message.text)<numberOfSymbolstoFindSimilar:
             if message.text.upper() not in stopslesserthan4:
                 bot.reply_to(message,
@@ -80,7 +80,8 @@ def numberandStopHandler(message):
         numberHandler(message)
 
 def numberHandler(message):
-    dirs = userTableWorker.getDirections(message.text)
+    route = message.text.upper()
+    dirs = userTableWorker.getDirections(route)
 
     # creation of direction buttons
     markup = types.InlineKeyboardMarkup()
@@ -97,7 +98,7 @@ def numberHandler(message):
     bot.send_message(message.chat.id, message.text + "\nВыберите направление:", reply_markup=markup)
 
     # updating table userdecision
-    userTableWorker.setAll(message.chat.id, message.text, None, None, etc.States.S_CHOOSE_DIR.value)
+    userTableWorker.setAll(message.chat.id, route, None, None, etc.States.S_CHOOSE_DIR.value)
 
 def stopsHandler(message, similarStops):
     # creation of stops buttons
