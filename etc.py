@@ -73,3 +73,5 @@ class States(Enum):
     S2_STOP_HANDLER = "4"
     S2_ROUTE_HANDLER = "5"
     S2_DIR_HANDLER = "6"
+    ENTER_FAV = "F"
+
