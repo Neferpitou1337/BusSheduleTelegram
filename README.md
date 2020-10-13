@@ -25,6 +25,7 @@
 </p>
 
 ### Or ###
+#### ¿noʎ ʇ,uǝʌɐɥ 'ǝʇɐɟ ǝןqıɹɹǝʇ ɐ ɥʇıʍ ʇǝɯ ǝʌ,noʎ ####
 
 - User send some part of name of busstop
 
