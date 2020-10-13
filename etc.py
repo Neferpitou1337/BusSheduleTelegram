@@ -1,5 +1,9 @@
 from enum import Enum
 
+import telebot
+
+from config import TOKEN
+
 URL = 'http://ap1.brest.by/shelude'
 NUMBERS_OF_BUSES = \
     ['1',
@@ -75,3 +79,5 @@ class States(Enum):
     S2_DIR_HANDLER = "6"
     ENTER_FAV = "F"
 
+
+bot = telebot.TeleBot(TOKEN, parse_mode=None)
