@@ -8,10 +8,9 @@ import userTableWorker
 from handlers.All_relatedTo_Favorites import GetFavoritesMarkup
 
 from etc import bot
-# logging.basicConfig(filename="sample.log", level=logging.INFO)
 
 # handler of /start and /reset commands
-@bot.message_handler(commands=['start', 'reset'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
     # logging.info("%s is in start command",message.chat.id )
     # instead of gitub.com it should open my github with this project

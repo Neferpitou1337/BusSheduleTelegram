@@ -7,7 +7,6 @@ import RefreshDB
 import etc
 import userTableWorker
 from etc import bot
-# logging.basicConfig(filename="sample.log", level=logging.INFO)
 """
     Fork
 """

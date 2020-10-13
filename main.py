@@ -17,7 +17,7 @@ from etc import bot
 # initialization of flask app
 app = Flask(__name__)
 
-
+# logging.basicConfig(filename="sample.log", level=logging.INFO)
 
 """
     creation of flask site and webhook
@@ -55,7 +55,7 @@ def RefreshDB_schedule(delay, task):
 
 if __name__ == "__main__":
     # RUN
-    threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
+    # threading.Thread(target=lambda: RefreshDB_schedule(24*60*60, RefreshDB.loop)).start()
 
     bot.remove_webhook()
     time.sleep(0.1)

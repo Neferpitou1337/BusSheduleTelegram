@@ -13,7 +13,6 @@ from handlers.All_relatedTo_Favorites import GetFavoritesMarkup
     Branch where our initial point is some stop
 """
 
-# logging.basicConfig(filename="sample.log", level=logging.INFO)
 
 @bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S2_STOP_HANDLER.value)
 def callback_inline_s2_Stop_Handler(call):
