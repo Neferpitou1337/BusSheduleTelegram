@@ -20,7 +20,6 @@ def setFavorites(userid,*arg):
                 WHERE userid=%s
             """, (userid,))
 
-    print(routeids)
     for id in routeids:
         cur.execute("""
                 INSERT INTO

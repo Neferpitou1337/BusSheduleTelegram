@@ -81,7 +81,7 @@ def GetFavoritesMarkup(message):
 
 @bot.message_handler(commands=['config'])
 def configure(message):
-    bot.send_message(message.chat.id, "Введите 3 своих любимых автобуса через пробел", reply_markup=types.ReplyKeyboardRemove(selective=False))
+    bot.send_message(message.chat.id, "Введите 3 своих приоритетных автобуса через пробел", reply_markup=types.ReplyKeyboardRemove(selective=False))
     userTableWorker.setState(message.chat.id, etc.States.ENTER_FAV.value)
 
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == etc.States.ENTER_FAV.value,
@@ -90,20 +90,18 @@ def favorites(message):
     count = 0
     # запрос удаляя при этом старую reply клавиатуру
     list_of_fav_buses = message.text.upper().split(' ')
-    print(list_of_fav_buses)
     for bus in list_of_fav_buses:
         if bus in etc.NUMBERS_OF_BUSES:
             count+=1
-            print("count"+str(count))
 
     if count >= 3:
         favoritesdb.setFavorites(message.chat.id, *list_of_fav_buses)
 
-        bot.send_message(message.chat.id, "Конфигурация любимых автобусов закончена",
+        bot.send_message(message.chat.id, "Конфигурация приоритетных автобусов закончена",
                          reply_markup=GetFavoritesMarkup(message))
         userTableWorker.setState(message.chat.id, etc.States.S_ENTER_NUMBER_OR_STOP.value)
     else:
-        bot.send_message(message.chat.id, "Ошибка. Введите 3 своих любимых автобуса через пробел")
+        bot.send_message(message.chat.id, "Ошибка. Введите 3 своих приоритетных автобуса через пробел")
 
 
 
