@@ -5,3 +5,4 @@ __pycache__/
 # config with important configurations that normal glance shouldn't see
 config.py
 test.py
+sample.log
