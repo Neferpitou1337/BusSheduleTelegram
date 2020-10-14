@@ -73,9 +73,11 @@ def callback_inline_Stops_Handler(call):
         Time = weekdayTime+'\n'+weekendTime
 
         # to mark these messages out
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=history,reply_markup=None)
-        bot.send_message(call.message.chat.id,text=clos_time)
-        bot.send_message(call.message.chat.id,text=Time, reply_markup=GetFavoritesMarkup(call.message))
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                              text=history + "\n" + clos_time + "\n\n"+ Time,
+        reply_markup = None)
+
+        bot.send_message(chat_id=call.message.chat.id,text="Введите номер автобуса или остановку",reply_markup=GetFavoritesMarkup(call.message))
 
         # reset table userdecision to begining
         userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value)
