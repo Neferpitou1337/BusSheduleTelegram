@@ -7,7 +7,6 @@ import favoritesdb
 import userTableWorker
 
 from etc import bot
-# logging.basicConfig(filename="sample.log", level=logging.INFO)
 
 """
     Configure Favorites Reply Markup and Get Favorites Reply Markup
@@ -37,7 +36,6 @@ def configure(message):
 @bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == etc.States.ENTER_FAV.value,
                      content_types=['text'])
 def favorites(message):
-    logging.info("%s is in from favorite handler",message.chat.id )
     count = 0
     # запрос удаляя при этом старую reply клавиатуру
     list_of_fav_buses = message.text.upper().split(' ')
