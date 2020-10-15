@@ -39,6 +39,33 @@ def callback_inline_s2_Stop_Handler(call):
         # updating table userdecision
         userTableWorker.setAll(call.message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value)
 
+# to call it via /help
+def back_s2_Stop_Handler(message):
+    # logging.info("%s is in from stop branch",call.message.chat.id )
+    # проверка на обновление дб
+    if RefreshDB.isRefreshing():
+        bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
+        return 0
+
+
+    stop = message.text
+    markup = types.InlineKeyboardMarkup()
+    # get all routes that coming trouth this stop
+    routes = userTableWorker.getRouteNumbers(stop)
+
+    buttons = generateButtonList(routes,buttInRow=5)
+
+    for b in buttons:
+        markup.row(*b)
+
+    history = stop + '\nВыберите номер автобуса:'
+    bot.send_message(chat_id=message.chat.id, text=history,reply_markup=markup)
+
+    # updating table userdecision
+    userTableWorker.setAll(message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value)
+
+
+
 
 @bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S2_ROUTE_HANDLER.value)
 def callback_inline_s2_routes_handler(call):
