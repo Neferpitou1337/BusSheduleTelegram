@@ -7,24 +7,35 @@ import RefreshDB
 import etc
 import userTableWorker
 from etc import bot
+
 """
     Fork
 """
 
+# пришлось делать функцию здесь потому что питон выдавал ошибку насчет рекрсивного импорта с backresetreplybutton
+def GetBackResetMarkup():
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=1)
+    markup.row(types.KeyboardButton("/back"), types.KeyboardButton("/reset"))
+    return markup
+
+
+
+
 # get directions from table and make 2 buttons inside bot
-@bot.message_handler(func=lambda message: userTableWorker.getState(message.chat.id) == etc.States.S_ENTER_NUMBER_OR_STOP.value,
-                     content_types=['text'])
+@bot.message_handler(
+    func=lambda message: userTableWorker.getState(message.chat.id) == etc.States.S_ENTER_NUMBER_OR_STOP.value,
+    content_types=['text'])
 def numberandStopHandler(message):
     # logging.info("%s is in fork", message.chat.id)
-    stopslesserthan4 = ["БТИ","ЦУМ","ЦМТ","БТК","АП","ТЭЦ","ЦГБ","ПСО","ФОК","ДСУ"]
+    stopslesserthan4 = ["БТИ", "ЦУМ", "ЦМТ", "БТК", "АП", "ТЭЦ", "ЦГБ", "ПСО", "ФОК", "ДСУ"]
     numberOfSymbolstoFindSimilar = 4
     # проверка на обновление дб
     if RefreshDB.isRefreshing():
-        bot.send_message(message.chat.id,text="Подождите пару минут, идет обновление базы данных")
+        bot.send_message(message.chat.id, text="Подождите пару минут, идет обновление базы данных")
         return 0
 
     if message.text.upper() not in etc.NUMBERS_OF_BUSES:
-        if len(message.text)<numberOfSymbolstoFindSimilar:
+        if len(message.text) < numberOfSymbolstoFindSimilar:
             if message.text.upper() not in stopslesserthan4:
                 bot.reply_to(message,
                              "Попытайтесь написать русскими буквами или такой остановки нет, или такого номера автобуса не "
@@ -35,7 +46,7 @@ def numberandStopHandler(message):
         else:
             similarStops = userTableWorker.getSimilarStops(message.text)
             if similarStops == []:
-                bot.reply_to(message,"Такой остановки не сущеставует")
+                bot.reply_to(message, "Такой остановки не сущеставует")
             else:
                 stopsHandler(message, similarStops)
     else:
@@ -57,7 +68,8 @@ def numberHandler(message):
     markup.add(itembtn1)
     markup.add(itembtn2)
 
-    bot.send_message(message.chat.id, message.text + "\nВыберите направление:", reply_markup=markup)
+    bot.send_message(message.chat.id, "Ответ сервера: ", reply_markup=GetBackResetMarkup())
+    bot.send_message(message.chat.id,message.text + "\nВыберите направление:", reply_markup=markup)
 
     # updating table userdecision
     userTableWorker.setAll(message.chat.id, route, None, None, etc.States.S_CHOOSE_DIR.value)
@@ -68,6 +80,7 @@ def stopsHandler(message, similarStops):
     for sS in similarStops:
         markup.add(types.InlineKeyboardButton(text=sS, callback_data=sS))
 
+    bot.send_message(message.chat.id, "Ответ сервера: ", reply_markup=GetBackResetMarkup())
     bot.send_message(message.chat.id, "\nВыберите остановку:", reply_markup=markup)
 
     # updating table userdecision

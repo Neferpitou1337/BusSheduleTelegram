@@ -8,6 +8,7 @@ import timeOperator
 import userTableWorker
 from etc import bot
 from handlers.All_relatedTo_Favorites import GetFavoritesMarkup
+from handlers.Fork_of_Stops_or_Numbers import GetBackResetMarkup
 
 """
     Branch where our initial point is some stop
@@ -59,6 +60,7 @@ def back_s2_Stop_Handler(message):
         markup.row(*b)
 
     history = stop + '\nВыберите номер автобуса:'
+    bot.send_message(message.chat.id, "Ответ сервера: ", reply_markup=GetBackResetMarkup())
     bot.send_message(chat_id=message.chat.id, text=history,reply_markup=markup)
 
     # updating table userdecision
