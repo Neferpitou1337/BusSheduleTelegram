@@ -1,5 +1,6 @@
 from telebot import types
 
+import RefreshDB
 import etc
 import userTableWorker
 from etc import bot
@@ -12,6 +13,10 @@ from handlers.All_relatedTo_Favorites import GetFavoritesMarkup
 @bot.message_handler(commands=['back'])
 def back_handler(message):
     if userTableWorker.getState(message.chat.id) == etc.States.S_CHOOSE_BUS_STOP.value:
+        if RefreshDB.isRefreshing():
+            bot.send_message(message.chat.id, text="Подождите пару минут, идет обновление базы данных")
+            return 0
+
         # delete previous message that relate to timetable and naxt after before with "Ответ сервера"
         bot.delete_message(message.chat.id,message.message_id-1)
         bot.delete_message(message.chat.id,message.message_id-2)
@@ -20,6 +25,10 @@ def back_handler(message):
         Fork_of_Stops_or_Numbers.numberHandler(message)
         # [411279120, '10', 'Газоаппарат - БЭТЗ', None, '3']
     elif userTableWorker.getState(message.chat.id) == etc.States.S2_DIR_HANDLER.value:
+        if RefreshDB.isRefreshing():
+            bot.send_message(message.chat.id, text="Подождите пару минут, идет обновление базы данных")
+            return 0
+
         # delete previous message that relate to timetable and naxt after before with "Ответ сервера"
         bot.delete_message(message.chat.id,message.message_id-1)
         bot.delete_message(message.chat.id,message.message_id-2)
