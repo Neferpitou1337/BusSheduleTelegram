@@ -48,6 +48,8 @@ def favorites(message):
 
         bot.send_message(message.chat.id, "Конфигурация приоритетных автобусов закончена",
                          reply_markup=GetFavoritesMarkup(message))
+        bot.send_message(message.chat.id, "Введите номер автобуса или остановку")
+
         userTableWorker.setState(message.chat.id, etc.States.S_ENTER_NUMBER_OR_STOP.value)
     else:
         bot.send_message(message.chat.id, "Ошибка. Введите 3 своих приоритетных автобуса через пробел")

@@ -16,4 +16,5 @@ def send_welcome(message):
     # instead of gitub.com it should open my github with this project
     bot.reply_to(message, "Добро Пожаловать в Bus Schedule Bot\nКак пользоваться:\nhttps://clck.ru/RMJMW",
                  disable_web_page_preview=False,reply_markup=GetFavoritesMarkup(message))
+    bot.send_message(message.chat.id,"Введите номер автобуса или остановку")
     userTableWorker.setState(message.chat.id, etc.States.S_ENTER_NUMBER_OR_STOP.value)
