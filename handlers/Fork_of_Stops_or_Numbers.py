@@ -69,10 +69,10 @@ def numberHandler(message):
     markup.add(itembtn2)
 
     bot.send_message(message.chat.id, "Ответ сервера: ", reply_markup=GetBackResetMarkup())
-    bot.send_message(message.chat.id,message.text + "\nВыберите направление:", reply_markup=markup)
+    mess_id = bot.send_message(message.chat.id,message.text + "\nВыберите направление:", reply_markup=markup).message_id
 
     # updating table userdecision
-    userTableWorker.setAll(message.chat.id, route, None, None, etc.States.S_CHOOSE_DIR.value)
+    userTableWorker.setAll(message.chat.id, route, None, None, etc.States.S_CHOOSE_DIR.value, mess_id)
 
 def stopsHandler(message, similarStops):
     # creation of stops buttons
@@ -81,7 +81,7 @@ def stopsHandler(message, similarStops):
         markup.add(types.InlineKeyboardButton(text=sS, callback_data=sS))
 
     bot.send_message(message.chat.id, "Ответ сервера: ", reply_markup=GetBackResetMarkup())
-    bot.send_message(message.chat.id, "\nВыберите остановку:", reply_markup=markup)
+    mess_id = bot.send_message(message.chat.id, "\nВыберите остановку:", reply_markup=markup).message_id
 
     # updating table userdecision
-    userTableWorker.setAll(message.chat.id, None, None, None, etc.States.S2_STOP_HANDLER.value)
+    userTableWorker.setAll(message.chat.id, None, None, None, etc.States.S2_STOP_HANDLER.value, mess_id)

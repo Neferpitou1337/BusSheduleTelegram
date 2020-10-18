@@ -12,14 +12,15 @@ from handlers.All_relatedTo_Favorites import GetFavoritesMarkup
 
 @bot.message_handler(commands=['back'])
 def back_handler(message):
+    mess_id = userTableWorker.getAll(message.chat.id)[-1]
     if userTableWorker.getState(message.chat.id) == etc.States.S_CHOOSE_BUS_STOP.value:
         if RefreshDB.isRefreshing():
             bot.send_message(message.chat.id, text="Подождите пару минут, идет обновление базы данных")
             return 0
 
         # delete previous message that relate to timetable and naxt after before with "Ответ сервера"
-        bot.delete_message(message.chat.id,message.message_id-1)
-        bot.delete_message(message.chat.id,message.message_id-2)
+        bot.delete_message(message.chat.id,mess_id-1)
+        bot.delete_message(message.chat.id,mess_id)
 
         message.text = userTableWorker.getAll(message.chat.id)[1]
         Fork_of_Stops_or_Numbers.numberHandler(message)
@@ -30,8 +31,8 @@ def back_handler(message):
             return 0
 
         # delete previous message that relate to timetable and naxt after before with "Ответ сервера"
-        bot.delete_message(message.chat.id,message.message_id-1)
-        bot.delete_message(message.chat.id,message.message_id-2)
+        bot.delete_message(message.chat.id,mess_id-1)
+        bot.delete_message(message.chat.id,mess_id)
 
         message.text = userTableWorker.getAll(message.chat.id)[3]
         From_Stop_handlers.back_s2_Stop_Handler(message)
@@ -45,9 +46,10 @@ def reset_handler(message):
     if userTableWorker.getState(message.chat.id) == etc.States.S_ENTER_NUMBER_OR_STOP.value:
         return 0
     else:
+        mess_id = userTableWorker.getAll(message.chat.id)[-1]
         # delete previous message that relate to timetable and naxt after before with "Ответ сервера"
-        bot.delete_message(message.chat.id,message.message_id-1)
-        bot.delete_message(message.chat.id,message.message_id-2)
+        bot.delete_message(message.chat.id,mess_id-1)
+        bot.delete_message(message.chat.id,mess_id)
 
         bot.send_message(message.chat.id,text="Введите номер автобуса или остановку",reply_markup=GetFavoritesMarkup(message))
-        userTableWorker.setAll(message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value)
+        userTableWorker.setAll(message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value, None)

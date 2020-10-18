@@ -45,7 +45,7 @@ def callback_inline_Directions_Handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=all[1]+"/"+dir,reply_markup=markup)
 
         # updating table userdecision
-        userTableWorker.setAll(call.message.chat.id, all[1], dir, None, etc.States.S_CHOOSE_BUS_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, all[1], dir, None, etc.States.S_CHOOSE_BUS_STOP.value, call.message.message_id)
 
 
 # giving a time to user and return to Entering number state
@@ -80,4 +80,4 @@ def callback_inline_Stops_Handler(call):
         bot.send_message(chat_id=call.message.chat.id,text="Введите номер автобуса или остановку",reply_markup=GetFavoritesMarkup(call.message))
 
         # reset table userdecision to begining
-        userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value, call.message.message_id)

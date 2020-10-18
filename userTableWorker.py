@@ -58,18 +58,18 @@ def getAll(user_id):
     return row
 
 
-def setAll(user_id, route, dir, stop, status):
+def setAll(user_id, route, dir, stop, status,message_id = None):
     conn = config.conDB()
     cur = conn.cursor(cursor_factory=DictCursor)
 
     cur.execute("""
             INSERT INTO 
-            userdecision(userid, route, direction, stop ,status)
-            VALUES(%s, %s, %s, %s, %s)
+            userdecision(userid, route, direction, stop ,status,mess_id)
+            VALUES(%s, %s, %s, %s, %s, %s)
             ON CONFLICT(userid) DO UPDATE
-            SET route=%s, direction=%s, stop=%s, status=%s
-        """, (user_id, route, dir, stop, status,
-                            route, dir, stop, status,))
+            SET route=%s, direction=%s, stop=%s, status=%s, mess_id=%s
+        """, (user_id, route, dir, stop, status,message_id,
+                            route, dir, stop, status,message_id,))
     conn.commit()
 
     cur.close()

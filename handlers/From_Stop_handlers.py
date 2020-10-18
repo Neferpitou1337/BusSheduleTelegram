@@ -38,7 +38,7 @@ def callback_inline_s2_Stop_Handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=history,reply_markup=markup)
 
         # updating table userdecision
-        userTableWorker.setAll(call.message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value, call.message.message_id)
 
 # to call it via /help
 def back_s2_Stop_Handler(message):
@@ -61,10 +61,10 @@ def back_s2_Stop_Handler(message):
 
     history = stop + '\nВыберите номер автобуса:'
     bot.send_message(message.chat.id, "Ответ сервера: ", reply_markup=GetBackResetMarkup())
-    bot.send_message(chat_id=message.chat.id, text=history,reply_markup=markup)
+    mess_id = bot.send_message(chat_id=message.chat.id, text=history,reply_markup=markup).message_id
 
     # updating table userdecision
-    userTableWorker.setAll(message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value)
+    userTableWorker.setAll(message.chat.id, None, None, stop, etc.States.S2_ROUTE_HANDLER.value, mess_id)
 
 
 
@@ -89,7 +89,7 @@ def callback_inline_s2_routes_handler(call):
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=history, reply_markup=markup)
 
-        userTableWorker.setAll(call.message.chat.id, route, None, stop, etc.States.S2_DIR_HANDLER.value)
+        userTableWorker.setAll(call.message.chat.id, route, None, stop, etc.States.S2_DIR_HANDLER.value,call.message.message_id)
 
 
 @bot.callback_query_handler(func=lambda call: userTableWorker.getState(call.message.chat.id) == etc.States.S2_DIR_HANDLER.value)
@@ -128,7 +128,7 @@ def callback_inline_s2_dir_handler(call):
         bot.send_message(chat_id=call.message.chat.id,text="Введите номер автобуса или остановку",reply_markup=GetFavoritesMarkup(call.message))
 
         # reset table userdecision to begining
-        userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value)
+        userTableWorker.setAll(call.message.chat.id, None, None, None, etc.States.S_ENTER_NUMBER_OR_STOP.value,call.message.message_id)
 
 
 # функция генерируящая лист из листов для использования в markup
