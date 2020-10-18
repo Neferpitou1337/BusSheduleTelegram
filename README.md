@@ -56,3 +56,16 @@
 <p align="center">
 <img src="img/s2_get_time.png">
 </p>
+
+## Also you can use ##
+- /back and /reset buttons
+
+<p align="center">
+<img src="img/backreset.png">
+</p>
+
+- favorites and configure favorites buttons
+
+<p align="center">
+<img src="img/favbutt.png">
+</p>
